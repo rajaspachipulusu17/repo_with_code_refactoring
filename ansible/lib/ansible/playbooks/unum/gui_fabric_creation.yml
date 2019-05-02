@@ -1,0 +1,75 @@
+# This task is to accept eula.
+# It uses pn_ztp_eula_accept.py module from library/modules directory.
+# pn_cliusername and pn_clipassword comes from vars file - cli_vault.yml
+# Accpts eula of each switch.
+- name: Zero Touch Provisioning - Eula accept
+  hosts: localhost
+  tags: eula-accept
+
+  tasks:
+    - name: Auto accept EULA
+      pn_ztp_eula_accept:
+        pn_cliusername: "{{ ansible_user }}"                                                                          # Cli username (value comes from cli_vault.yml).
+        pn_clipassword: "{{ ansible_ssh_pass }}"                                                                      # Cli password (value comes from cli_vault.yml).
+        pn_spine_list: "{{ groups['spine'] | default([]) }}"                                                          # List of spine switches
+        pn_leaf_list: "{{ groups['leaf'] | default([])}}"                                                             # List of leaf switches
+        pn_leaf_ips: "{{ groups['leaf'] | default('') | map('extract', hostvars, ['ansible_host']) | join(',') }}"    # IPs of leaf switches separated by comma
+        pn_spine_ips: "{{ groups['spine'] | default('') | map('extract', hostvars, ['ansible_host']) | join(',') }}"  # IPs of spine switches separated by comma
+
+
+
+## NOTE : ansible_ssh_pass should be provided in cli_vault.yml according to your requirement.
+
+# This task is to configure initial ZTP setup on all switches.
+# It uses pn_ztp_initial_setup.py module from library/ directory.
+# If the tasks fails then it will retry as specified by retries count.
+# sets up initial fabric setup of the switch.
+- name: Zero Touch Provisioning - Initial setup
+  hosts: spine, leaf
+  tags: fabric-setup
+  serial: 1
+
+  tasks:
+    - name: Disable STP, enable ports and create/join fabric
+      pn_ztp_initial_setup:
+        pn_fabric_name: "{{ pn_fabric_name }}"                          # Name of the fabric to create/join.
+        pn_current_switch: "{{ inventory_hostname }}"                   # Name of the switch on which this task is currently getting executed.
+        pn_spine_list: "{{ groups['spine'] | default([]) }}"            # List of all spine switches mentioned under [spine] grp in hosts file.
+        pn_leaf_list: "{{ groups['leaf'] }}"                            # List of all leaf switches mentioned under [leaf] grp in hosts file.
+        pn_toggle_port_speed: "{{ pn_toggle_port_speed }}"              # Flag to indicate if 40g/100g ports should be converted to 10g/25g ports or not.
+        pn_inband_ipv4: "{{ pn_inband_ipv4 }}"                          # Inband ips to be assigned to switches starting with this value. Default: 192.168.0.1/24.
+        pn_fabric_network: "{{ pn_fabric_network }}"                    # Choices: in-band or mgmt.  Default: mgmt
+        pn_fabric_control_network: "{{ pn_fabric_control_network }}"    # Choices: in-band or mgmt.  Default: mgmt
+        pn_static_setup: "{{ pn_static_setup }}"                        # Flag to indicate if static values should be assign to following switch setup params. Default: True.
+        pn_mgmt_ip: "{{ ansible_host }}"                                # Specify MGMT-IP value to be assign if pn_static_setup is True.
+        pn_mgmt_ip_subnet: "{{ pn_mgmt_ip_subnet }}"                    # Specify subnet mask for MGMT-IP value to be assign if pn_static_setup is True.
+        pn_gateway_ip: "{{ pn_gateway_ip }}"                            # Specify GATEWAY-IP value to be assign if pn_static_setup is True.
+        pn_dns_ip: "{{ pn_dns_ip }}"                                    # Specify DNS-IP value to be assign if pn_static_setup is True.
+        pn_dns_secondary_ip: "{{ pn_dns_secondary_ip }}"                # Specify DNS-SECONDARY-IP value to be assign if pn_static_setup is True.
+        pn_domain_name: "{{ pn_domain_name }}"                          # Specify DOMAIN-NAME value to be assign if pn_static_setup is True.
+        pn_ntp_server: "{{ pn_ntp_server }}"                            # Specify NTP-SERVER value to be assign if pn_static_setup is True.
+        pn_stp: "{{ pn_stp }}"                                          # Specify True if you want to enable STP at the end. Default: False.
+        pn_autotrunk: "{{ pn_autotrunk }}"                              # Flag to enable/disable auto-trunk setting.
+      register: ztp_out                                                 # Variable to hold/register output of the above tasks.
+      until: ztp_out.failed != true                                     # If the above code fails it will retry the code
+      retries: 3                                                        # This is the retries count
+      delay: 3
+
+
+# This task is to disable ports not in ZTP fabric on all switches.
+# It uses pn_ztp_ports_disable.py module from library/ directory.
+- name: Zero Touch Provisioning - Initial setup
+  hosts: spine[0]
+  tags: ports-disable
+  serial: 1
+
+  tasks:
+    - name: Disable STP, enable ports and create/join fabric
+      pn_ztp_ports_disable:
+        pn_current_switch: "{{ inventory_hostname }}"           # Active switch on which commands are executed.
+        pn_port_disable: True                                   # Ports to be disable are not. Bool: True/False
+      register: ztp_port_disable                                # Variable to hold/register output of the above tasks.
+      until:  ztp_port_disable.failed != true                   # If error pops up it will retry the code
+      retries: 3                                                # This is the retries count
+      delay: 1
+

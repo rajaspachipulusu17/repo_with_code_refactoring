@@ -1,0 +1,13 @@
+---
+
+
+- name: Reset switches
+  hosts: localhost
+
+  tasks:
+    - name: Switch config reset
+      pn_switch_config_reset:
+        pn_cliusername: "{{ ansible_user }}"                                                                      # Cli username (value comes from extra vars).
+        pn_clipassword: "{{ ansible_ssh_pass }}"                                                                  # Cli password (value comes from extra vars).
+        pn_host_list: "{{ groups['{{ reset_mode }}'] }}"                                                          # List of all switches
+        pn_host_ips: "{{ groups['{{ reset_mode }}'] | map('extract', hostvars, ['ansible_host']) | join(',') }}"  # IPs of all switches separated by comma

@@ -1,0 +1,17 @@
+#L2 Single Switch
+---
+
+
+- name: Configure L2 single switch
+  hosts: switch[0]
+
+  tasks:
+    - name: Create trunks
+      pn_trunk_creation:
+        pn_switch_list: "{{ groups['switch'] }}"
+        pn_trunk_data: "{{ lookup('file', '{{ trunk_csv_file }}') }}"
+
+    - name: Create vlans
+      pn_vlan_creation:
+        pn_switch: "{{ inventory_hostname }}"
+        pn_vlan_data: "{{ lookup('file', '{{ vlan_csv_file }}') }}"

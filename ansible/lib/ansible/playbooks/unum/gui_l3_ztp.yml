@@ -1,0 +1,34 @@
+#L3 ZTP
+---
+
+
+- name: Zero Touch Provisioning - Layer3 setup
+  hosts: leaf
+
+  tasks:
+    # This task is to configure ZTP for layer3 fabric.
+    # It uses pn_ztp_l3_links.py module from library/ directory.
+    # If the tasks fails then it will retry as specified by retries count.
+    - name: Auto configure link IPs
+      pn_ztp_l3_links:
+        pn_current_switch: "{{ inventory_hostname }}"                         # Name of the switch on which this task is currently getting executed.
+        pn_spine_list: "{{ groups['spine'] }}"                                # List of all spine switches mentioned under [spine] grp in hosts file.
+        pn_leaf_list: "{{ groups['leaf'] }}"                                  # List of all leaf switches mentioned under [leaf] grp in hosts file.
+        pn_addr_type: "{{ pn_addr_type }}"                                    # The type of address scheme to be used. Options: ipv4/dual_stack.
+        pn_ipv4_start_address: "{{ pn_ipv4_start_address }}"                  # Ipv4 Network address required to calculate link IPs for layer3 fabric.
+        pn_cidr_ipv4: "{{ pn_cidr_ipv4 }}"                                    # Ipv4 CIDR required to calculate link IPs for layer3 fabric.
+        pn_subnet_ipv4: "{{ pn_subnet_ipv4 }}"                                # Ipv4 Subnet mask required to calculate link IPs for layer3 fabric.
+        pn_if_nat_realm: "{{ pn_if_nat_realm }}"                              # Type of if_nat_realm. choices=['internal', 'external'], default='internal'
+        pn_ipv6_start_address: "{{ pn_ipv6_start_address }}"                  # Ipv6 Network address required to calculate link IPs for layer3 fabric.
+        pn_cidr_ipv6: "{{ pn_cidr_ipv6 }}"                                    # ipv6 Subnet mask required to calculate link IPs for layer3 fabric.
+        pn_subnet_ipv6: "{{ pn_subnet_ipv6 }}"                                # Ipv6 Subnet mask required to calculate link IPs for layer3 fabric.
+        pn_bfd: "{{ pn_bfd }}"                                                # Flag to indicate if BFD config should be added to vrouter interfaces. Default: False.
+        pn_bfd_min_rx: "{{ pn_bfd_min_rx }}"                                  # BFD-MIN-RX value required for adding BFD configuration to vrouter interfaces.
+        pn_bfd_multiplier: "{{ pn_bfd_multiplier }}"                          # BFD_MULTIPLIER value required for adding BFD configuration to vrouter interfaces.
+        pn_update_fabric_to_inband: "{{ pn_update_fabric_to_inband }}"        # Flag to indicate if fabric network should be updated to in-band. Default: False.
+        pn_stp: "{{ pn_stp }}"                                                # Flag to enable STP (spanning tree protocol). Default: False.
+        pn_jumbo_frames: "{{ pn_jumbo_frames }}"                              # Flag to assign mtu Default: False.
+      register: ztp_l3_out                                                    # Variable to hold/register output of the above tasks.
+      until:  ztp_l3_out.failed != true                                       # If error pops up it will retry the code
+      retries: 3                                                              # This is the retries count
+      delay: 1

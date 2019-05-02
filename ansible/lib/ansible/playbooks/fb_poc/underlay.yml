@@ -1,0 +1,753 @@
+---
+
+# leaf-1
+
+- name: "Create Leaf-1 vRouter"
+  hosts: leaf[0]
+  tags: leaf1-vrouter
+
+  tasks:
+    - name: "Create Leaf-1 vRouter"
+      pn_vrouter:
+        pn_action: "create"
+        pn_name: "Leaf-1"
+        pn_vnet: "FB-Fabric-global"
+        pn_router_type: "hardware"
+        pn_router_id: "10.10.1.1"
+        pn_bgp_as: "65001"
+        pn_bgp_redistribute: "connected"
+        pn_bgp_max_paths: "16"
+        pn_bgp_bestpath: "multipath-relax"
+      register: output
+
+- name: "Create Leaf-1 vRouter Interfaces"
+  hosts: leaf[0]
+  tags: leaf1-vrouter-interface
+
+  tasks:
+    - name: "Create Leaf-1 vRouter Interfaces"
+      pn_vrouter_iface:
+        pn_action: "add"
+        pn_vrouter: "Leaf-1"
+        pn_interface_ip: "{{ item.iface_ip }}"
+        pn_l3port: "{{ item.l3port }}"
+        pn_mtu: "9216"
+      with_items:
+        - {iface_ip: '10.5.1.2/30', l3port: '49'}
+        - {iface_ip: '10.6.1.2/30', l3port: '65'}
+        - {iface_ip: '10.9.1.2/30', l3port: '17'}
+      register: output
+
+- name: "Configure BGP"
+  hosts: leaf[0]
+  tags: leaf1-vrouter-bgp
+
+  tasks:
+    - name: "Configure BGP"
+      pn_vrouter_bgp:
+        pn_action: "add"
+        pn_vrouter: "Leaf-1"
+        pn_neighbor: "{{ item.neighbor }}"
+        pn_remote_as: "{{ item.remote_as }}"
+        pn_bfd: True
+        pn_allowas_in: True
+      with_items:
+        - {neighbor: '10.5.1.1', remote_as: '65005'}
+        - {neighbor: '10.6.1.1', remote_as: '65005'}
+        - {neighbor: '10.9.1.1', remote_as: '65007'}
+      register: output
+
+# leaf-2
+
+- name: "Create Leaf-2 vRouter"
+  hosts: leaf[1]
+  tags: leaf2-vrouter
+
+  tasks:
+    - name: "Create Leaf-2 vRouter"
+      pn_vrouter:
+        pn_action: "create"
+        pn_name: "Leaf-2"
+        pn_vnet: "FB-Fabric-global"
+        pn_router_type: "hardware"
+        pn_router_id: "10.10.2.2"
+        pn_bgp_as: "65001"
+        pn_bgp_redistribute: "connected"
+        pn_bgp_max_paths: "16"
+        pn_bgp_bestpath: "multipath-relax"
+      register: output
+
+- name: "Create Leaf-2 vRouter Interfaces"
+  hosts: leaf[1]
+  tags: leaf2-vrouter-interface
+
+  tasks:
+    - name: "Create Leaf-2 vRouter Interfaces"
+      pn_vrouter_iface:
+        pn_action: "add"
+        pn_vrouter: "Leaf-2"
+        pn_interface_ip: "{{ item.iface_ip }}"
+        pn_l3port: "{{ item.l3port }}"
+        pn_mtu: "9216"
+      with_items:
+        - {iface_ip: '10.5.2.2/30', l3port: '49'}
+        - {iface_ip: '10.6.2.2/30', l3port: '65'}
+        - {iface_ip: '10.9.2.2/30', l3port: '17'}
+      register: output
+
+- name: "Configure BGP"
+  hosts: leaf[1]
+  tags: leaf2-vrouter-bgp
+
+  tasks:
+    - name: "Configure BGP"
+      pn_vrouter_bgp:
+        pn_action: "add"
+        pn_vrouter: "Leaf-2"
+        pn_neighbor: "{{ item.neighbor }}"
+        pn_remote_as: "{{ item.remote_as }}"
+        pn_bfd: True
+        pn_allowas_in: True
+      with_items:
+        - {neighbor: '10.5.2.1', remote_as: '65005'}
+        - {neighbor: '10.6.2.1', remote_as: '65005'}
+        - {neighbor: '10.9.2.1', remote_as: '65007'}
+      register: output
+
+# leaf-3
+
+- name: "Create Leaf-3 vRouter"
+  hosts: leaf[2]
+  tags: leaf3-vrouter
+
+  tasks:
+    - name: "Create Leaf-3 vRouter"
+      pn_vrouter:
+        pn_action: "create"
+        pn_name: "Leaf-3"
+        pn_vnet: "FB-Fabric-global"
+        pn_router_type: "hardware"
+        pn_router_id: "10.10.3.3"
+        pn_bgp_as: "65002"
+        pn_bgp_redistribute: "connected"
+        pn_bgp_max_paths: "16"
+        pn_bgp_bestpath: "multipath-relax"
+      register: output
+
+- name: "Create Leaf-3 vRouter Interfaces"
+  hosts: leaf[2]
+  tags: leaf3-vrouter-interface
+
+  tasks:
+    - name: "Create Leaf-3 vRouter Interfaces"
+      pn_vrouter_iface:
+        pn_action: "add"
+        pn_vrouter: "Leaf-3"
+        pn_interface_ip: "{{ item.iface_ip }}"
+        pn_l3port: "{{ item.l3port }}"
+        pn_mtu: "9216"
+      with_items:
+        - {iface_ip: '10.7.3.2/30', l3port: '49'}
+        - {iface_ip: '10.8.3.2/30', l3port: '65'}
+        - {iface_ip: '10.9.3.2/30', l3port: '17'}
+      register: output
+
+- name: "Configure BGP"
+  hosts: leaf[2]
+  tags: leaf3-vrouter-bgp
+
+  tasks:
+    - name: "Configure BGP"
+      pn_vrouter_bgp:
+        pn_action: "add"
+        pn_vrouter: "Leaf-3"
+        pn_neighbor: "{{ item.neighbor }}"
+        pn_remote_as: "{{ item.remote_as }}"
+        pn_bfd: True
+        pn_allowas_in: True
+      with_items:
+        - {neighbor: '10.7.3.1', remote_as: '65006'}
+        - {neighbor: '10.8.3.1', remote_as: '65006'}
+        - {neighbor: '10.9.3.1', remote_as: '65007'}
+      register: output
+
+# leaf-4
+
+- name: "Create Leaf-4 vRouter"
+  hosts: leaf[3]
+  tags: leaf4-vrouter
+
+  tasks:
+    - name: "Create Leaf-4 vRouter"
+      pn_vrouter:
+        pn_action: "create"
+        pn_name: "Leaf-4"
+        pn_vnet: "FB-Fabric-global"
+        pn_router_type: "hardware"
+        pn_router_id: "10.10.4.4"
+        pn_bgp_as: "65002"
+        pn_bgp_redistribute: "connected"
+        pn_bgp_max_paths: "16"
+        pn_bgp_bestpath: "multipath-relax"
+      register: output
+
+- name: "Create Leaf-4 vRouter Interfaces"
+  hosts: leaf[3]
+  tags: leaf4-vrouter-interface
+
+  tasks:
+    - name: "Create Leaf-4 vRouter Interfaces"
+      pn_vrouter_iface:
+        pn_action: "add"
+        pn_vrouter: "Leaf-4"
+        pn_interface_ip: "{{ item.iface_ip }}"
+        pn_l3port: "{{ item.l3port }}"
+        pn_mtu: "9216"
+      with_items:
+        - {iface_ip: '10.7.4.2/30', l3port: '49'}
+        - {iface_ip: '10.8.4.2/30', l3port: '65'}
+        - {iface_ip: '10.9.4.2/30', l3port: '17'}
+      register: output
+
+- name: "Configure BGP"
+  hosts: leaf[3]
+  tags: leaf4-vrouter-bgp
+
+  tasks:
+    - name: "Configure BGP"
+      pn_vrouter_bgp:
+        pn_action: "add"
+        pn_vrouter: "Leaf-4"
+        pn_neighbor: "{{ item.neighbor }}"
+        pn_remote_as: "{{ item.remote_as }}"
+        pn_bfd: True
+        pn_allowas_in: True
+      with_items:
+        - {neighbor: '10.7.4.1', remote_as: '65006'}
+        - {neighbor: '10.8.4.1', remote_as: '65006'}
+        - {neighbor: '10.9.4.1', remote_as: '65007'}
+      register: output
+
+# spine-1
+
+- name: "Create Spine-1 vRouter"
+  hosts: spine[0]
+  tags: spine1-vrouter
+
+  tasks:
+    - name: "Create Spine-1 vRouter"
+      pn_vrouter:
+        pn_action: "create"
+        pn_name: "Spine-1"
+        pn_vnet: "FB-Fabric-global"
+        pn_router_type: "hardware"
+        pn_router_id: "10.10.5.5"
+        pn_bgp_as: "65005"
+        pn_bgp_redistribute: "connected"
+        pn_bgp_max_paths: "16"
+        pn_bgp_bestpath: "multipath-relax"
+      register: output
+
+- name: "Create Spine-1 vRouter Interfaces"
+  hosts: spine[0]
+  tags: spine1-vrouter-interface
+
+  tasks:
+    - name: "Create Spine-1 vRouter Interfaces"
+      pn_vrouter_iface:
+        pn_action: "add"
+        pn_vrouter: "Spine-1"
+        pn_interface_ip: "{{ item.iface_ip }}"
+        pn_l3port: "{{ item.l3port }}"
+        pn_mtu: "9216"
+      with_items:
+        - {iface_ip: '10.5.1.1/30', l3port: '1'}
+        - {iface_ip: '10.5.2.1/30', l3port: '17'}
+      register: output
+
+- name: "Configure BGP"
+  hosts: spine[0]
+  tags: spine1-vrouter-bgp
+
+  tasks:
+    - name: "Configure BGP"
+      pn_vrouter_bgp:
+        pn_action: "add"
+        pn_vrouter: "Spine-1"
+        pn_neighbor: "{{ item.neighbor }}"
+        pn_remote_as: "{{ item.remote_as }}"
+        pn_bfd: True
+        pn_allowas_in: True
+      with_items:
+        - {neighbor: '10.5.1.2', remote_as: '65001'}
+        - {neighbor: '10.5.2.2', remote_as: '65001'}
+      register: output
+
+# spine-2
+
+- name: "Create Spine-2 vRouter"
+  hosts: spine[1]
+  tags: spine2-vrouter
+
+  tasks:
+    - name: "Create Spine-2 vRouter"
+      pn_vrouter:
+        pn_action: "create"
+        pn_name: "Spine-2"
+        pn_vnet: "FB-Fabric-global"
+        pn_router_type: "hardware"
+        pn_router_id: "10.10.6.6"
+        pn_bgp_as: "65005"
+        pn_bgp_redistribute: "connected"
+        pn_bgp_max_paths: "16"
+        pn_bgp_bestpath: "multipath-relax"
+      register: output
+
+- name: "Create Spine-2 vRouter Interfaces"
+  hosts: spine[1]
+  tags: spine2-vrouter-interface
+
+  tasks:
+    - name: "Create Spine-2 vRouter Interfaces"
+      pn_vrouter_iface:
+        pn_action: "add"
+        pn_vrouter: "Spine-2"
+        pn_interface_ip: "{{ item.iface_ip }}"
+        pn_l3port: "{{ item.l3port }}"
+        pn_mtu: "9216"
+      with_items:
+        - {iface_ip: '10.6.1.1/30', l3port: '1'}
+        - {iface_ip: '10.6.2.1/30', l3port: '17'}
+      register: output
+
+- name: "Configure BGP"
+  hosts: spine[1]
+  tags: spine2-vrouter-bgp
+
+  tasks:
+    - name: "Configure BGP"
+      pn_vrouter_bgp:
+        pn_action: "add"
+        pn_vrouter: "Spine-2"
+        pn_neighbor: "{{ item.neighbor }}"
+        pn_remote_as: "{{ item.remote_as }}"
+        pn_bfd: True
+        pn_allowas_in: True
+      with_items:
+        - {neighbor: '10.6.1.2', remote_as: '65001'}
+        - {neighbor: '10.6.2.2', remote_as: '65001'}
+      register: output
+
+
+# Switch Clusters
+
+# Rack-1
+
+- name: "Create Rack1 Cluster"
+  hosts: leaf[0]
+  tags: rack1-cluster
+
+  tasks:
+    - name: "Create Rack1 Cluster"
+      pn_cluster:
+        pn_action: "create"
+        pn_name: "Rack1"
+        pn_cluster_node1: "leaf-1"
+        pn_cluster_node2: "leaf-2"
+      register: output
+
+- name: "Create Rack1 VLAN"
+  hosts: leaf[0], leaf[1]
+  tags: rack1-vlan
+
+  tasks:
+    - name: "Create Rack1 VLAN"
+      pn_vlan:
+        pn_action: "create"
+        pn_vlanid: "4000"
+        pn_scope: "local"
+        pn_description: "IBGP-RACK1"
+        pn_ports: "none"
+      register: output
+
+- name: "Add VLAN ports"
+  hosts: leaf[0], leaf[1]
+  tags: rack1-vlan-port
+
+  tasks:
+    - name: "Add VLAN ports"
+      pn_vlan_port:
+        pn_action: "add"
+        pn_vlanid: "4000"
+        pn_ports: "128"
+        pn_tag_untag: "tagged"
+      register: output
+
+- name: "Create vRouter Interfaces"
+  hosts: leaf[0]
+  tags: rack1-interface
+
+  tasks:
+    - name: "Create vRouter Interfaces"
+      pn_vrouter_iface:
+        pn_action: "add"
+        pn_vrouter: "{{ item.vrouter }}"
+        pn_interface_ip: "{{ item.iface_ip }}"
+        pn_vlan: "4000"
+        pn_mtu: "9216"
+      with_items:
+        - {vrouter: 'Leaf-1', iface_ip: '10.1.2.1/30'}
+        - {vrouter: 'Leaf-2', iface_ip: '10.1.2.2/30'}
+      register: output
+
+- name: "Configure BGP"
+  hosts: leaf[0]
+  tags: rack1-bgp
+
+  tasks:
+    - name: "Configure BGP"
+      pn_vrouter_bgp:
+        pn_action: "add"
+        pn_vrouter: "{{ item.vrouter }}"
+        pn_neighbor: "{{ item.neighbor }}"
+        pn_remote_as: "65001"
+        pn_next_hop_self: True
+        pn_bfd: True
+      with_items:
+        - {vrouter: 'Leaf-1', neighbor: '10.1.2.2'}
+        - {vrouter: 'Leaf-2', neighbor: '10.1.2.1'}
+      register: output
+
+# Rack-2
+
+- name: "Create Rack2 Cluster"
+  hosts: leaf[2]
+  tags: rack2-cluster
+
+  tasks:
+    - name: "Create Rack2 Cluster"
+      pn_cluster:
+        pn_action: "create"
+        pn_name: "Rack2"
+        pn_cluster_node1: "leaf-3"
+        pn_cluster_node2: "leaf-4"
+      register: output
+
+- name: "Create Rack2 VLAN"
+  hosts: leaf[2], leaf[3]
+  tags: rack2-vlan
+
+  tasks:
+    - name: "Create Rack1 VLAN"
+      pn_vlan:
+        pn_action: "create"
+        pn_vlanid: "4000"
+        pn_scope: "local"
+        pn_description: "IBGP-RACK2"
+        pn_ports: "none"
+      register: output
+
+- name: "Add VLAN ports"
+  hosts: leaf[2], leaf[3]
+  tags: rack2-vlan-port
+
+  tasks:
+    - name: "Add VLAN ports"
+      pn_vlan_port:
+        pn_action: "add"
+        pn_vlanid: "4000"
+        pn_ports: "128"
+        pn_tag_untag: "tagged"
+      register: output
+
+- name: "Create vRouter Interfaces"
+  hosts: leaf[2]
+  tags: rack2-interface
+
+  tasks:
+    - name: "Create vRouter Interfaces"
+      pn_vrouter_iface:
+        pn_action: "add"
+        pn_vrouter: "{{ item.vrouter }}"
+        pn_interface_ip: "{{ item.iface_ip }}"
+        pn_vlan: "4000"
+        pn_mtu: "9216"
+      with_items:
+        - {vrouter: 'Leaf-3', iface_ip: '10.3.4.1/30'}
+        - {vrouter: 'Leaf-4', iface_ip: '10.3.4.2/30'}
+      register: output
+
+- name: "Configure BGP"
+  hosts: leaf[2]
+  tags: rack2-bgp
+
+  tasks:
+    - name: "Configure BGP"
+      pn_vrouter_bgp:
+        pn_action: "add"
+        pn_vrouter: "{{ item.vrouter }}"
+        pn_neighbor: "{{ item.neighbor }}"
+        pn_remote_as: "65002"
+        pn_next_hop_self: True
+        pn_bfd: True
+      with_items:
+        - {vrouter: 'Leaf-3', neighbor: '10.3.4.2'}
+        - {vrouter: 'Leaf-4', neighbor: '10.3.4.1'}
+      register: output
+
+
+# VTEPS
+# Modify vRouter HW VRRP ID
+
+- name: "Configure HW VRRP ID"
+  hosts: leaf[0]
+  tags: vrouter-hwvrrpid
+
+  tasks:
+    - name: "Configure HW VRRP ID"
+      pn_vrouter:
+        pn_action: "modify"
+        pn_name: "{{ item.name }}"
+        pn_hw_vrrp_id: "{{ item.hw_vrrp_id }}"
+      with_items:
+        - {name: 'Leaf-1', hw_vrrp_id: '11'}
+        - {name: 'Leaf-2', hw_vrrp_id: '11'}
+        - {name: 'Leaf-3', hw_vrrp_id: '22'}
+        - {name: 'Leaf-4', hw_vrrp_id: '22'}
+      register: output
+
+
+# VTEP VLANS
+
+- name: "Create Rack1 VLAN"
+  hosts: leaf[0]
+  tags: rack1-vtep-vlan
+
+  tasks:
+    - name: "Create Rack1 VLAN"
+      pn_vlan:
+        pn_action: "create"
+        pn_vlanid: "1020"
+        pn_scope: "cluster"
+        pn_description: "VTEP-HA"
+        pn_ports: "none"
+      register: output
+
+- name: "Add VLAN ports"
+  hosts: leaf[0], leaf[1]
+  tags: rack1-vtep-vlanport
+
+  tasks:
+    - name: "Add VLAN ports"
+      pn_vlan_port:
+        pn_action: "add"
+        pn_vlanid: "1020"
+        pn_ports: "128"
+        pn_tag_untag: "tagged"
+      register: output
+
+- name: "Create Rack2 VLAN"
+  hosts: leaf[2]
+  tags: rack2-vtep-vlan
+
+  tasks:
+    - name: "Create Rack2 VLAN"
+      pn_vlan:
+        pn_action: "create"
+        pn_vlanid: "1020"
+        pn_scope: "cluster"
+        pn_description: "VTEP-HA"
+        pn_ports: "none"
+      register: output
+
+- name: "Add VLAN ports"
+  hosts: leaf[2], leaf[3]
+  tags: rack2-vtep-vlanport
+
+  tasks:
+    - name: "Add VLAN ports"
+      pn_vlan_port:
+        pn_action: "add"
+        pn_vlanid: "1020"
+        pn_ports: "128"
+        pn_tag_untag: "tagged"
+      register: output
+
+# VTEP SVI
+
+- name: Create VRRP interfaces
+  hosts: leaf[0]
+  tags: leaf1-vrrp
+
+  tasks:
+    - name: "Create vRouter interfaces"
+      pn_vrouter_iface:
+        pn_cliswitch: "leaf-1"
+        pn_action: "add"
+        pn_vrouter: "Leaf-1"
+        pn_vlan: "1020"
+        pn_interface_ip: "10.20.11.2/29"
+        pn_mtu: '9216'
+      register: output
+
+    - name: "Create VRRP interface"
+      pn_vrouter_iface:
+        pn_cliswitch: "leaf-1"
+        pn_action: "add"
+        pn_vrouter: "Leaf-1"
+        pn_vlan: "1020"
+        pn_interface_ip: "10.20.11.1/29"
+        pn_vrrp_id: 11
+        pn_vrrp_priority: 250
+        pn_mtu: '9216'
+      register: output
+
+- name: Create VRRP interfaces
+  hosts: leaf[1]
+  tags: leaf2-vrrp
+
+  tasks:
+    - name: "Create vRouter interfaces"
+      pn_vrouter_iface:
+        pn_cliswitch: "leaf-2"
+        pn_action: "add"
+        pn_vrouter: "Leaf-2"
+        pn_vlan: "1020"
+        pn_interface_ip: "10.20.11.3/29"
+        pn_mtu: "9216"
+      register: output
+
+    - name: "Create VRRP interface"
+      pn_vrouter_iface:
+        pn_cliswitch: "leaf-2"
+        pn_action: "add"
+        pn_vrouter: "Leaf-2"
+        pn_vlan: "1020"
+        pn_interface_ip: "10.20.11.1/29"
+        pn_vrrp_id: 11
+        pn_vrrp_priority: 240
+        pn_mtu: "9216"
+      register: output
+
+- name: Create VRRP interfaces
+  hosts: leaf[2]
+  tags: leaf3-vrrp
+
+  tasks:
+    - name: "Create vRouter interfaces"
+      pn_vrouter_iface:
+        pn_cliswitch: "leaf-3"
+        pn_action: "add"
+        pn_vrouter: "Leaf-3"
+        pn_vlan: "1020"
+        pn_interface_ip: "10.20.22.2/29"
+        pn_mtu: '9216'
+      register: output
+
+    - name: "Create VRRP interface"
+      pn_vrouter_iface:
+        pn_cliswitch: "leaf-3"
+        pn_action: "add"
+        pn_vrouter: "Leaf-3"
+        pn_vlan: "1020"
+        pn_interface_ip: "10.20.22.1/29"
+        pn_vrrp_id: 22
+        pn_vrrp_priority: 250
+        pn_mtu: '9216'
+      register: output
+
+- name: Create VRRP interfaces
+  hosts: leaf[3]
+  tags: leaf4-vrrp
+
+  tasks:
+    - name: "Create vRouter interfaces"
+      pn_vrouter_iface:
+        pn_cliswitch: "leaf-4"
+        pn_action: "add"
+        pn_vrouter: "Leaf-4"
+        pn_vlan: "1020"
+        pn_interface_ip: "10.20.22.3/29"
+        pn_mtu: "9216"
+      register: output
+
+    - name: "Create VRRP interface"
+      pn_vrouter_iface:
+        pn_cliswitch: "leaf-4"
+        pn_action: "add"
+        pn_vrouter: "Leaf-4"
+        pn_vlan: "1020"
+        pn_interface_ip: "10.20.22.1/29"
+        pn_vrrp_id: 22
+        pn_vrrp_priority: 240
+        pn_mtu: "9216"
+      register: output
+
+# Recirculation
+
+- name: "Recirculation"
+  hosts: all
+  tags: recirculation
+
+  tasks:
+    - name: "Recirculation"
+      pn_trunk:
+        pn_action: "modify"
+        pn_name: "vxlan-loopback-trunk"
+        pn_ports: "13"
+      register: output
+
+# VTEP Creation
+
+- name: "VTEP Creation"
+  hosts: leaf[0]
+  tags: vtep-create
+
+  tasks:
+    - name: "VTEP Creation"
+      pn_vtep:
+        pn_action: "create"
+        pn_name: "{{ item.name }}"
+        pn_location: "{{ item.location }}"
+        pn_vrouter_name: "{{ item.vrouter_name }}"
+        pn_ip: "{{ item.ip }}"
+        pn_virtual_ip: "{{ item.virtual_ip }}"
+      with_items:
+        - {name: 'LEAF-1', location: 'leaf-1', vrouter_name: 'Leaf-1', ip: '10.20.11.2', virtual_ip: '10.20.11.1'}
+        - {name: 'LEAF-2', location: 'leaf-2', vrouter_name: 'Leaf-2', ip: '10.20.11.3', virtual_ip: '10.20.11.1'}
+        - {name: 'LEAF-3', location: 'leaf-3', vrouter_name: 'Leaf-3', ip: '10.20.22.2', virtual_ip: '10.20.22.1'}
+        - {name: 'LEAF-4', location: 'leaf-4', vrouter_name: 'Leaf-4', ip: '10.20.22.3', virtual_ip: '10.20.22.1'}
+      register: output
+
+# Create VRF
+
+- name: "Create VRF"
+  hosts: leaf[0]
+  tags: vrf
+
+  tasks:
+    - name: "Create VRF"
+      pn_vrf:
+        pn_action: "create"
+        pn_name: "VRF-1"
+        pn_scope: "fabric"
+      register: output
+
+# Define Subnets for overlay VLANs attached to this VRF
+
+- name: "Define Subnets"
+  hosts: leaf[0]
+  tags: subnet
+
+  tasks:
+    - name: "Define Subnets"
+      pn_subnet:
+        pn_action: "create"
+        pn_vxlan: "{{ item.vxlan }}"
+        pn_network: "{{ item.network }}"
+        pn_vrf: "VRF-1"
+        pn_anycast_gw_ip: "{{ item.anycast_gw_ip }}"
+      with_items:
+        - {vxlan: '100000', network: '172.1.10.0/24', anycast_gw_ip: '172.1.10.1'}
+        - {vxlan: '110000', network: '172.1.11.0/24', anycast_gw_ip: '172.1.11.1'}
+      register: output

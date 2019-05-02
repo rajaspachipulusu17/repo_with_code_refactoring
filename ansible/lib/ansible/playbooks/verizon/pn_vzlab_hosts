@@ -1,0 +1,13 @@
+[spine]
+hmplabpsq-we60100 ansible_host=10.13.26.14
+hmplabpsq-we60200 ansible_host=10.13.26.15
+hmplabpsq-we60300 ansible_host=10.13.26.16
+hmplabpsq-we60400 ansible_host=10.13.26.17
+
+[leaf]
+hmplabpsq-we50100 ansible_host=10.13.26.18
+hmplabpsq-we50200 ansible_host=10.13.26.19
+hmplabpsq-we50300 ansible_host=10.13.26.20
+hmplabpsq-we50400 ansible_host=10.13.26.21
+hmplabpsq-we50500 ansible_host=10.13.26.22
+hmplabpsq-we50600 ansible_host=10.13.26.63

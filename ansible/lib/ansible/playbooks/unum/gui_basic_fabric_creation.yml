@@ -1,0 +1,43 @@
+#Basic Fabric Creation
+---
+
+
+# This play is to accept eula.
+# It uses pn_ztp_eula_accept.py module from library/ directory.
+- name: Zero Touch Provisioning - Eula accept
+  hosts: localhost
+  tags: eula-accept
+
+  tasks:
+    - name: Auto accept EULA
+      pn_ztp_eula_accept:
+        pn_cliusername: "{{ ansible_user }}"                   # Cli username (value comes from extra vars).
+        pn_clipassword: "{{ ansible_ssh_pass }}"                   # Cli password (value comes from extra vars).
+        pn_basic_switch_list: "{{ groups['switch'] }}"     # List of all switches
+        pn_basic_switch_ips: "{{ groups['switch'] | map('extract', hostvars, ['ansible_host']) | join(',') }}"   # IPs of all switches separated by comma
+
+
+# This play is to configure fabric
+- name: Create/join fabric
+  hosts: switch
+  serial: 1
+  tags: fabric-create
+
+  tasks:
+    - name: Fabric creation/join
+      basic_fabric_creation:
+        pn_switch: "{{ inventory_hostname }}"                        # Name of the switch on which this task is currently getting executed.
+        pn_switch_list: "{{ groups['switch'] | default([]) }}"       # List of all switches mentioned under [switch] grp in hosts file.
+        pn_fabric_name: "{{ pn_fabric_name }}"                       # Name of the fabric to create.
+        pn_inband_ip: "{{ pn_inband_ip }}"                           # Inband ips to be assigned to switches starting with this value. Default: 172.16.0.0/24.
+        pn_toggle_port_speed: "{{ pn_toggle_port_speed }}"           # Flag to indicate if port speed should be toggled for better topology visibility. Default: True
+        pn_dns_ip: "{{ pn_dns_ip }}"                                 # Specify DNS-IP value to be assigned to switches.
+        pn_dns_secondary_ip: "{{ pn_dns_secondary_ip }}"             # Specify DNS-SECONDARY-IP value to be assigned to switches.
+        pn_domain_name: "{{ pn_domain_name }}"                       # Specify DOMAIN-NAME value to be assigned to switches.
+        pn_ntp_server: "{{ pn_ntp_server }}"                         # Specify NTP-SERVER value to be assigned to switches.
+        pn_autotrunk: "{{ pn_autotrunk }}"                           # Specify enable/disable auto-trunk setting. Default: disable
+        pn_autoneg: "{{ pn_autoneg }}"                               # Flag to toggle auto-neg ON/OFF if the setup contains T2+ leaf switches. Default: False
+      register: ztp_out                                              # Variable to hold/register output of the above tasks.
+      until: ztp_out.failed != true                                  # If the above code fails it will retry the code
+      retries: 3                                                     # This is the retries count
+      delay: 3

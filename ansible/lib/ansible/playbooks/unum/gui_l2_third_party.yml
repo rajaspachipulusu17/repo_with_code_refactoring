@@ -1,0 +1,21 @@
+#L2 with third party spines
+---
+
+
+- name: Layer 2 setup with third party spine switches
+  hosts: leaf[0]
+
+  tasks:
+    # This task is to configure ZTP layer 2 setup.
+    # It uses pn_l2_third_party.py module from library/ directory.
+    # If the tasks fails then it will retry as specified by retries count.
+    - name: Configure auto vlag
+      pn_l2_ztp_third_party:
+        pn_spine_list: "{{ groups['third_party_spine'] }}"  # List of all spine switches mentioned under [spine] grp in hosts file.
+        pn_leaf_list: "{{ groups['leaf'] }}"    # List of all leaf switches mentioned under [leaf] grp in hosts file.
+        pn_update_fabric_to_inband: "{{ pn_update_fabric_to_inband }}"  # Flag to indicate if fabric network should be updated to in-band. Default: False.
+        pn_stp: "{{ pn_stp }}"                  # Specify True if you want to enable STP at the end. Default: False.
+      register: ztp_l2_out                      # Variable to hold/register output of the above tasks.
+      until:  ztp_l2_out.failed != true         # If error pops up it will retry the code.
+      retries: 3                                # This is the retries count.
+      delay: 3

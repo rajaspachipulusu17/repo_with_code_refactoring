@@ -1,0 +1,629 @@
+#Verizon QOS
+---
+
+
+# This task is to create/delete dscp-map.
+# It uses pn_dscp_map.py module from library/ directory.
+- name: dscp map  module
+  hosts: spine, leaf
+  tags: dscp-map
+
+  vars_files:
+  - cli_vault.yml
+
+  tasks:
+    - name: dscp map create
+      pn_dscp_map:
+        pn_cliswitch: "{{ inventory_hostname }}"        # Name of the switch on which this task is currently getting executed.
+        pn_action: "create"                             # admin-syslog configuration command: create/delete.
+        pn_name: "verizon_qos"                          # Specify the name of the dscp-map.
+      register: output
+    - debug:
+        var: output
+
+
+# This task is to modify dscp-map-pri-map.
+# It uses pn_dscp_map_pri_map.py module from library/ directory.
+- name: dscp map pri map module
+  hosts: spine, leaf
+  tags: dscp-map-pri-map
+
+  vars_files:
+  - cli_vault.yml
+
+  tasks:
+    - name: dscp map pri map modify
+      pn_dscp_map_pri_map: pn_cliswitch={{ inventory_hostname }} pn_action="modify" pn_name="verizon_qos" pn_pri={{ item.pri }} pn_dsmap={{ item.dsmap }}
+      with_items:
+        - {pri: '0', dsmap: '40'}
+        - {pri: '1', dsmap: '8,10,12,14'}
+        - {pri: '2', dsmap: '16,18,20,22'}
+        - {pri: '3', dsmap: '24,26,28,30'}
+        - {pri: '4', dsmap: '32,34,36,38'}
+        - {pri: '5', dsmap: '46'}
+        - {pri: '6', dsmap: '48'}
+        - {pri: '7', dsmap: '56'}
+      register: output
+    - debug:
+        var: output
+
+
+# This task is to modify port config.
+# It uses pn_port_config.py module from library/ directory.
+- name: port config module
+  hosts: spine, leaf
+  tags: port-config
+
+  vars_files:
+  - cli_vault.yml
+
+  tasks:
+    - name: port config modify
+      pn_port_config:
+        pn_cliswitch: "{{ inventory_hostname }}"        # Name of the switch on which this task is currently getting executed.
+        pn_action: "modify"                             # port config configuration command: modify.
+        pn_port: "all"                                  # Specify the port/ports to be modified.
+        pn_dscp_map: "verizon_qos"                      # Specify the name of dscp-map.
+      register: output
+    - debug:
+        var: output
+
+
+# This task is to modify port bandwidth.
+# It uses pn_port_cos_bw.py module from library/ directory.
+- name: port cos bw module
+  hosts: spine, leaf
+  tags: port-cos-bw
+
+  vars_files:
+  - cli_vault.yml
+
+  tasks:
+    - name: port cos bw modify
+      pn_port_cos_bw:
+        pn_cliswitch: "{{ inventory_hostname }}"        # Name of the switch on which this task is currently getting executed.
+        pn_action: "modify"                             # port cos bw configuration command: modify.
+        pn_port: "all"                                  # Specify the port/ports to be modified.
+        pn_cos: "5"                                     # Specify the cos.
+        pn_min_bw_guarantee: "20"                       # Specify the min bw guarentee.
+        pn_weight: "20"                                 # Specify the weight.
+      register: output
+    - debug:
+        var: output
+
+
+# This task is to modify port bandwidth.
+# It uses pn_port_cos_bw.py module from library/ directory.
+- name: port cos bw module
+  hosts: spine, leaf
+  tags: port-cos-bw
+
+  vars_files:
+  - cli_vault.yml
+
+  tasks:
+    - name: port cos bw modify
+      pn_port_cos_bw:
+        pn_cliswitch: "{{ inventory_hostname }}"        # Name of the switch on which this task is currently getting executed.
+        pn_action: "modify"                             # port cos bw configuration command: modify.
+        pn_port: "all"                                  # Specify the port/ports to be modified.
+        pn_cos: "4"                                     # Specify the cos.
+        pn_min_bw_guarantee: "8"                        # Specify the min bw guarentee.
+      register: output
+    - debug:
+        var: output
+
+
+# This task is to modify port bandwidth.
+# It uses pn_port_cos_bw.py module from library/ directory.
+- name: port cos bw module
+  hosts: spine, leaf
+  tags: port-cos-bw
+
+  vars_files:
+  - cli_vault.yml
+
+  tasks:
+    - name: port cos bw modify
+      pn_port_cos_bw:
+        pn_cliswitch: "{{ inventory_hostname }}"        # Name of the switch on which this task is currently getting executed.
+        pn_action: "modify"                             # port cos bw configuration command: modify.
+        pn_port: "all"                                  # Specify the port/ports to be modified.
+        pn_cos: "6"                                     # Specify the cos.
+        pn_min_bw_guarantee: "4"                        # Specify the min bw guarentee.
+      register: output
+    - debug:
+        var: output
+
+
+# This task is to modify port bandwidth.
+# It uses pn_port_cos_bw.py module from library/ directory.
+- name: port cos bw module
+  hosts: spine, leaf
+  tags: port-cos-bw
+
+  vars_files:
+  - cli_vault.yml
+
+  tasks:
+    - name: port cos bw modify
+      pn_port_cos_bw:
+        pn_cliswitch: "{{ inventory_hostname }}"        # Name of the switch on which this task is currently getting executed.
+        pn_action: "modify"                             # port cos bw configuration command: modify.
+        pn_port: "all"                                  # Specify the port/ports to be modified.
+        pn_cos: "0"                                     # Specify the cos.
+        pn_min_bw_guarantee: "68"                       # Specify the min bw guarentee.
+      register: output
+    - debug:
+        var: output
+
+
+# This task is to modify port cos rate setting.
+# It uses pn_port_cos_rate_setting.py module from library/ directory.
+- name: port cos rate setting module
+  hosts: spine, leaf
+  tags: port-cos-rate-setting
+
+  vars_files:
+  - cli_vault.yml
+
+  tasks:
+    - name: port cos bw modify
+      pn_port_cos_rate_setting:
+        pn_cliswitch: "{{ inventory_hostname }}"          # Name of the switch on which this task is currently getting executed.
+        pn_action: "modify"                               # port cos rate setting configuration command: modify.
+        pn_port: "control-port"                           # Specify the port type choices=['control-port', 'data-port', 'span-ports']
+        pn_cos1_rate: "1000"                              # Specify the port cos-rate.
+        pn_cos5_rate: "1000"                              # Specify the port cos-rate.
+        pn_cos2_rate: "1000"                              # Specify the port cos-rate.
+        pn_cos0_rate: "1000"                              # Specify the port cos-rate.
+        pn_cos6_rate: "1000"                              # Specify the port cos-rate.
+        pn_cos3_rate: "1000"                              # Specify the port cos-rate.
+        pn_cos4_rate: "1000"                              # Specify the port cos-rate.
+        pn_cos7_rate: "1000"                              # Specify the port cos-rate.
+      register: output
+    - debug:
+        var: output
+
+
+# This task is to add vflows.
+# It uses pn_vflow.py module from library/ directory.
+- name: vflow module
+  hosts: spine, leaf
+  tags: vflow1
+
+  vars_files:
+  - cli_vault.yml
+
+  tasks:
+    - name: vflow module
+      pn_vflow: pn_action={{ item.action }} pn_name={{ item.name }} pn_scope={{ item.scope }} pn_inport={{ item.in_port }} pn_dst_port={{ item.dst_port }} pn_dst_port_mask={{ item.dst_port_mask }} pn_proto={{ item.proto }} pn_dscp={{ item.dscp }} pn_stats_interval={{ item.stats_interval }} pn_dscp_map={{ item.dscp_map }} pn_dscp_action={{ item.dscp_action }} pn_action_value={{ item.action_value }} pn_precedence={{ item.precedence }}
+      with_items:
+        - {action: 'create', name: 'm_dc_voip_1', scope: 'local', in_port: '1-72', dst_port: '16384', dst_port_mask: '0xC000', proto: 'udp', dscp: '46 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '46', precedence: '11'}
+        - {action: 'create', name: 'm_dc_video_1', scope: 'local', in_port: '1-72', dst_port: '16384', dst_port_mask: '0xC000', proto: 'udp', dscp: '34 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '34', precedence: '11'}
+        - {action: 'create', name: 'm_dc_peer_video_1', scope: 'local', in_port: '1-72', dst_port: '16384', dst_port_mask: '0xC000', proto: 'udp', dscp: '0 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '0', precedence: '11'}
+      register: output
+    - debug:
+        var: output
+
+
+# This task is to add vflows.
+# It uses pn_vflow.py module from library/ directory.
+- name: vflow module
+  hosts: spine, leaf
+  tags: vflow2
+
+  vars_files:
+  - cli_vault.yml
+
+  tasks:
+    - name: vflow module
+      pn_vflow: pn_action={{ item.action }} pn_name={{ item.name }} pn_scope={{ item.scope }} pn_inport={{ item.in_port }} pn_src_port={{ item.src_port }} pn_src_port_mask={{ item.src_port_mask }} pn_proto={{ item.proto }} pn_dscp={{ item.dscp }} pn_stats_interval={{ item.stats_interval }} pn_dscp_map={{ item.dscp_map }} pn_dscp_action={{ item.dscp_action }} pn_action_value={{ item.action_value }} pn_precedence={{ item.precedence }}
+      with_items:
+        - {action: 'create', name: 'm_dc_voip_2', scope: 'local', in_port: '1-72', src_port: '16384', src_port_mask: '0xC000', proto: 'udp', dscp: '46 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '46', precedence: '11'}
+        - {action: 'create', name: 'm_dc_video_2', scope: 'local', in_port: '1-72', src_port: '16384', src_port_mask: '0xC000', proto: 'udp', dscp: '34 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '34', precedence: '11'}
+        - {action: 'create', name: 'm_dc_peer_video_2', scope: 'local', in_port: '1-72', src_port: '16384', src_port_mask: '0xC000', proto: 'udp', dscp: '0 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '0', precedence: '11'}
+      register: output
+    - debug:
+        var: output
+
+
+# This task is to add vflows.
+# It uses pn_vflow.py module from library/ directory.
+- name: vflow module
+  hosts: spine, leaf
+  tags: vflow3
+
+  vars_files:
+  - cli_vault.yml
+
+  tasks:
+    - name: vflow module
+      pn_vflow: pn_action={{ item.action }} pn_name={{ item.name }} pn_scope={{ item.scope }} pn_inport={{ item.in_port }} pn_proto={{ item.proto }} pn_dst_port={{ item.dst_port }} pn_stats_interval={{ item.stats_interval }} pn_dscp_map={{ item.dscp_map }} pn_dscp_action={{ item.dscp_action }} pn_action_value={{ item.action_value }} pn_precedence={{ item.precedence }}
+      with_items:
+        - {action: 'create', name: 'm_dc_voip_video_ctrl_1', scope: 'local', in_port: '1-72', proto: 'tcp', dst_port: '2000', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '24', precedence: '11'}
+        - {action: 'create', name: 'm_dc_voip_video_ctrl_2', scope: 'local', in_port: '1-72', proto: 'tcp', dst_port: '2001', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '24', precedence: '11'}
+        - {action: 'create', name: 'm_dc_voip_video_ctrl_3', scope: 'local', in_port: '1-72', proto: 'tcp', dst_port: '2002', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '24', precedence: '11'}
+        - {action: 'create', name: 'm_dc_voip_video_ctrl_4', scope: 'local', in_port: '1-72', proto: 'tcp', dst_port: '2000', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '24', precedence: '11'}
+        - {action: 'create', name: 'm_dc_voip_video_ctrl_5', scope: 'local', in_port: '1-72', proto: 'tcp', dst_port: '2001', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '24', precedence: '11'}
+        - {action: 'create', name: 'm_dc_voip_video_ctrl_6', scope: 'local', in_port: '1-72', proto: 'tcp', dst_port: '2002', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '24', precedence: '11'}
+        - {action: 'create', name: 'm_dc_voip_video_ctrl_7', scope: 'local', in_port: '1-72', proto: 'tcp', dst_port: '2443', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '24', precedence: '11'}
+        - {action: 'create', name: 'm_dc_voip_video_ctrl_8', scope: 'local', in_port: '1-72', proto: 'tcp', dst_port: '2443', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '24', precedence: '11'}
+        - {action: 'create', name: 'm_dc_voip_video_ctrl_9', scope: 'local', in_port: '1-72', proto: 'tcp', dst_port: '1719', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '24', precedence: '11'}
+        - {action: 'create', name: 'm_dc_voip_video_ctrl_10', scope: 'local', in_port: '1-72', proto: 'tcp', dst_port: '1720', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '24', precedence: '11'}
+        - {action: 'create', name: 'm_dc_voip_video_ctrl_11', scope: 'local', in_port: '1-72', proto: 'tcp', dst_port: '1719', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '24', precedence: '11'}
+        - {action: 'create', name: 'm_dc_voip_video_ctrl_12', scope: 'local', in_port: '1-72', proto: 'tcp', dst_port: '1720', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '24', precedence: '11'}
+        - {action: 'create', name: 'm_dc_voip_video_ctrl_13', scope: 'local', in_port: '1-72', proto: 'udp', dst_port: '2427', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '24', precedence: '10'}
+        - {action: 'create', name: 'm_dc_voip_video_ctrl_14', scope: 'local', in_port: '1-72', proto: 'udp', dst_port: '2427', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '24', precedence: '10'}
+        - {action: 'create', name: 'm_dc_voip_video_ctrl_15', scope: 'local', in_port: '1-72', proto: 'tcp', dst_port: '2428', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '24', precedence: '11'}
+        - {action: 'create', name: 'm_dc_voip_video_ctrl_16', scope: 'local', in_port: '1-72', proto: 'tcp', dst_port: '2428', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '24', precedence: '11'}
+        - {action: 'create', name: 'm_dc_voip_video_ctrl_17', scope: 'local', in_port: '1-72', proto: 'tcp', dst_port: '5060', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '24', precedence: '11'}
+        - {action: 'create', name: 'm_dc_voip_video_ctrl_18', scope: 'local', in_port: '1-72', proto: 'tcp', dst_port: '5061', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '24', precedence: '11'}
+        - {action: 'create', name: 'm_dc_voip_video_ctrl_19', scope: 'local', in_port: '1-72', proto: 'tcp', dst_port: '5060', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '24', precedence: '11'}
+        - {action: 'create', name: 'm_dc_voip_video_ctrl_20', scope: 'local', in_port: '1-72', proto: 'tcp', dst_port: '5061', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '24', precedence: '11'}
+        - {action: 'create', name: 'm_dc_voip_video_ctrl_21', scope: 'local', in_port: '1-72', proto: 'udp', dst_port: '5060', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '24', precedence: '10'}
+        - {action: 'create', name: 'm_dc_voip_video_ctrl_22', scope: 'local', in_port: '1-72', proto: 'udp', dst_port: '5061', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '24', precedence: '10'}
+        - {action: 'create', name: 'm_dc_voip_video_ctrl_23', scope: 'local', in_port: '1-72', proto: 'udp', dst_port: '5060', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '24', precedence: '10'}
+        - {action: 'create', name: 'm_dc_voip_video_ctrl_24', scope: 'local', in_port: '1-72', proto: 'udp', dst_port: '5061', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '24', precedence: '10'}
+      register: output
+    - debug:
+        var: output
+
+
+# This task is to add vflows.
+# It uses pn_vflow.py module from library/ directory.
+- name: vflow module
+  hosts: spine, leaf
+  tags: vflow4
+
+  vars_files:
+  - cli_vault.yml
+
+  tasks:
+    - name: vflow module
+      pn_vflow: pn_action={{ item.action }} pn_name={{ item.name }} pn_scope={{ item.scope }} pn_inport={{ item.in_port }} pn_proto={{ item.proto }} pn_src_ip={{ item.src_ip }} pn_dst_ip={{item.dst_ip }} pn_stats_interval={{ item.stats_interval }} pn_dscp_map={{ item.dscp_map }} pn_dscp_action={{ item.dscp_action }} pn_action_value={{ item.action_value }} pn_precedence={{ item.precedence }}
+      with_items:
+        - {action: 'create', name: 'm_video_ebu_gre_1', scope: 'local', in_port: '1-72', proto: '47', src_ip: '166.68.50.2', dst_ip: '192.112.55.12 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '32', precedence: '7'}
+        - {action: 'create', name: 'm_video_ebu_gre_2', scope: 'local', in_port: '1-72', proto: '47', src_ip: '138.83.79.21', dst_ip: '199.116.18.252 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '32', precedence: '7'}
+        - {action: 'create', name: 'm_video_ebu_gre_3', scope: 'local', in_port: '1-72', proto: '47', src_ip: '138.83.79.21', dst_ip: '114.9.95.6 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '32', precedence: '7'}
+        - {action: 'create', name: 'm_video_ebu_gre_4', scope: 'local', in_port: '1-72', proto: '47', src_ip: '138.83.175.24', dst_ip: '114.9.191.6 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '32', precedence: '7'}
+      register: output
+    - debug:
+        var: output
+
+
+# This task is to add vflows.
+# It uses pn_vflow.py module from library/ directory.
+- name: vflow module
+  hosts: spine, leaf
+  tags: vflow5
+
+  vars_files:
+  - cli_vault.yml
+
+  tasks:
+    - name: vflow module
+      pn_vflow: pn_action={{ item.action }} pn_name={{ item.name }} pn_scope={{ item.scope }} pn_inport={{ item.in_port }} pn_dst_ip={{item.dst_ip }} pn_dst_ip_mask={{ item.dst_ip_mask }} pn_stats_interval={{ item.stats_interval }} pn_dscp_map={{ item.dscp_map }} pn_dscp_action={{ item.dscp_action }} pn_action_value={{ item.action_value }} pn_precedence={{ item.precedence }}
+      with_items:
+        - {action: 'create', name: 'm_dc_stream_dc_vid_1', scope: 'local', in_port: '1-72', dst_ip: '239.192.0.0', dst_ip_mask: '255.255.0.0 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '32', precedence: '7'}
+        - {action: 'create', name: 'm_dc_stream_dc_vid_3', scope: 'local', in_port: '1-72', dst_ip: '239.193.0.0', dst_ip_mask: '255.255.0.0 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '32', precedence: '7'}
+        - {action: 'create', name: 'm_dc_stream_dc_vid_5', scope: 'local', in_port: '1-72', dst_ip: '239.194.0.0', dst_ip_mask: '255.255.0.0 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '32', precedence: '7'}
+        - {action: 'create', name: 'm_dc_stream_dc_vid_7', scope: 'local', in_port: '1-72', dst_ip: '239.200.0.0', dst_ip_mask: '255.255.0.0 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '32', precedence: '7'}
+        - {action: 'create', name: 'm_dc_stream_dc_vid_9', scope: 'local', in_port: '1-72', dst_ip: '239.196.0.0', dst_ip_mask: '255.255.0.0 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '32', precedence: '7'}
+        - {action: 'create', name: 'm_dc_stream_dc_vid_11', scope: 'local', in_port: '1-72', dst_ip: '239.197.0.0', dst_ip_mask: '255.255.0.0 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '32', precedence: '7'}
+        - {action: 'create', name: 'm_dc_stream_dc_vid_13', scope: 'local', in_port: '1-72', dst_ip: '239.198.0.0', dst_ip_mask: '255.255.0.0 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '32', precedence: '7'}
+        - {action: 'create', name: 'm_dc_stream_dc_vid_15', scope: 'local', in_port: '1-72', dst_ip: '239.199.0.0', dst_ip_mask: '255.255.0.0 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '32', precedence: '7'}
+        - {action: 'create', name: 'm_dc_stream_dc_vid_17', scope: 'local', in_port: '1-72', dst_ip: '227.1.1.0', dst_ip_mask: '255.255.255.0 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '32', precedence: '7'}
+      register: output
+    - debug:
+        var: output
+
+
+# This task is to add vflows.
+# It uses pn_vflow.py module from library/ directory.
+- name: vflow module
+  hosts: spine, leaf
+  tags: vflow5
+
+  vars_files:
+  - cli_vault.yml
+
+  tasks:
+    - name: vflow module
+      pn_vflow: pn_action={{ item.action }} pn_name={{ item.name }} pn_scope={{ item.scope }} pn_inport={{ item.in_port }} pn_src_ip={{item.src_ip }} pn_src_ip_mask={{ item.src_ip_mask }} pn_stats_interval={{ item.stats_interval }} pn_dscp_map={{ item.dscp_map }} pn_dscp_action={{ item.dscp_action }} pn_action_value={{ item.action_value }} pn_precedence={{ item.precedence }}
+      with_items:
+        - {action: 'create', name: 'm_dc_stream_dc_vid_2', scope: 'local', in_port: '1-72', src_ip: '239.192.0.0', src_ip_mask: '255.255.0.0 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '32', precedence: '7'}
+        - {action: 'create', name: 'm_dc_stream_dc_vid_4', scope: 'local', in_port: '1-72', src_ip: '239.193.0.0', src_ip_mask: '255.255.0.0 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '32', precedence: '7'}
+        - {action: 'create', name: 'm_dc_stream_dc_vid_6', scope: 'local', in_port: '1-72', src_ip: '239.194.0.0', src_ip_mask: '255.255.0.0 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '32', precedence: '7'}
+        - {action: 'create', name: 'm_dc_stream_dc_vid_8', scope: 'local', in_port: '1-72', src_ip: '239.200.0.0', src_ip_mask: '255.255.0.0 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '32', precedence: '7'}
+        - {action: 'create', name: 'm_dc_stream_dc_vid_10', scope: 'local', in_port: '1-72', src_ip: '239.196.0.0', src_ip_mask: '255.255.0.0 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '32', precedence: '7'}
+        - {action: 'create', name: 'm_dc_stream_dc_vid_12', scope: 'local', in_port: '1-72', src_ip: '239.197.0.0', src_ip_mask: '255.255.0.0 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '32', precedence: '7'}
+        - {action: 'create', name: 'm_dc_stream_dc_vid_14', scope: 'local', in_port: '1-72', src_ip: '239.198.0.0', src_ip_mask: '255.255.0.0 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '32', precedence: '7'}
+        - {action: 'create', name: 'm_dc_stream_dc_vid_16', scope: 'local', in_port: '1-72', src_ip: '239.199.0.0', src_ip_mask: '255.255.0.0 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '32', precedence: '7'}
+        - {action: 'create', name: 'm_dc_stream_dc_vid_18', scope: 'local', in_port: '1-72', src_ip: '227.1.1.0', src_ip_mask: '255.255.255.0 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '32', precedence: '7'}
+
+        - {action: 'create', name: 'm_dc_nms_subnets_1', scope: 'local', in_port: '1-72', src_ip: '138.83.165.0', src_ip_mask: '255.255.255.192 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '16', precedence: '6'}
+        - {action: 'create', name: 'm_dc_nms_subnets_2', scope: 'local', in_port: '1-72', src_ip: '138.83.67.0', src_ip_mask: '255.255.255.128 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '16', precedence: '6'}
+        - {action: 'create', name: 'm_dc_nms_subnets_3', scope: 'local', in_port: '1-72', src_ip: '161.128.192.0', src_ip_mask: '255.255.255.0 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '16', precedence: '6'}
+        - {action: 'create', name: 'm_dc_nms_subnets_4', scope: 'local', in_port: '1-72', src_ip: '166.68.192.0', src_ip_mask: '255.255.255.0 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '16', precedence: '6'}
+        - {action: 'create', name: 'm_dc_nms_subnets_5', scope: 'local', in_port: '1-72', src_ip: '166.68.224.0', src_ip_mask: '255.255.255.0 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '16', precedence: '6'}
+        - {action: 'create', name: 'm_dc_nms_subnets_6', scope: 'local', in_port: '1-72', src_ip: '162.115.200.0', src_ip_mask: '255.255.254.0 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '16', precedence: '6'}
+        - {action: 'create', name: 'm_dc_nms_subnets_7', scope: 'local', in_port: '1-72', src_ip: '162.115.202.0', src_ip_mask: '255.255.254.0 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '16', precedence: '6'}
+        - {action: 'create', name: 'm_dc_nms_subnets_8', scope: 'local', in_port: '1-72', src_ip: '162.115.8.0', src_ip_mask: '255.255.254.0 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '16', precedence: '6'}
+        - {action: 'create', name: 'm_dc_nms_subnets_9', scope: 'local', in_port: '1-72', src_ip: '162.115.10.0', src_ip_mask: '255.255.254.0 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '16', precedence: '6'}
+        - {action: 'create', name: 'm_dc_nms_subnets_10', scope: 'local', in_port: '1-72', src_ip: '162.115.72.0', src_ip_mask: '255.255.254.0 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '16', precedence: '6'}
+        - {action: 'create', name: 'm_dc_nms_subnets_11', scope: 'local', in_port: '1-72', src_ip: '162.115.74.0', src_ip_mask: '255.255.254.0 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '16', precedence: '6'}
+        - {action: 'create', name: 'm_dc_nms_subnets_12', scope: 'local', in_port: '1-72', src_ip: '137.188.72.0', src_ip_mask: '255.255.254.0 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '16', precedence: '6'}
+        - {action: 'create', name: 'm_dc_nms_subnets_13', scope: 'local', in_port: '1-72', src_ip: '137.188.74.0', src_ip_mask: '255.255.254.0 enable ', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '16', precedence: '6'}
+      register: output
+    - debug:
+        var: output
+
+
+# This task is to add vflows.
+# It uses pn_vflow.py module from library/ directory.
+- name: vflow module
+  hosts: spine, leaf
+  tags: vflow6
+
+  vars_files:
+  - cli_vault.yml
+
+  tasks:
+    - name: vflow module
+      pn_vflow: pn_action={{ item.action }} pn_name={{ item.name }} pn_scope={{ item.scope }} pn_inport={{ item.in_port }} pn_src_port={{ item.src_port }} pn_proto={{ item.proto }} pn_stats_interval={{ item.stats_interval }} pn_dscp_map={{ item.dscp_map }} pn_dscp_action={{ item.dscp_action }} pn_action_value={{ item.action_value }} pn_precedence={{ item.precedence }}
+      with_items:
+        - {action: 'create', name: 'm_dc_bulkdata_1', scope: 'local', in_port: '1-72', src_port: '21', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_bulkdata_3', scope: 'local', in_port: '1-72', src_port: '20', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_bulkdata_5', scope: 'local', in_port: '1-72', src_port: '22', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_bulkdata_7', scope: 'local', in_port: '1-72', src_port: '445', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_bulkdata_9', scope: 'local', in_port: '1-72', src_port: '69', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_desktop_mgt_1', scope: 'local', in_port: '1-72', src_port: '5282', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '10', precedence: '10'}
+        - {action: 'create', name: 'm_dc_core_protect_1', scope: 'local', in_port: '1-72', src_port: '11577', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_nms_radius_3', scope: 'local', in_port: '1-72', src_port: '1645 enable', proto: 'udp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '16', precedence: '8'}
+        - {action: 'create', name: 'm_dc_nms_radius_4', scope: 'local', in_port: '1-72', src_port: '1646 enable', proto: 'udp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '16', precedence: '8'}
+        - {action: 'create', name: 'm_dc_nms_radius_7', scope: 'local', in_port: '1-72', src_port: '1645 enable', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '16', precedence: '8'}
+        - {action: 'create', name: 'm_dc_nms_radius_8', scope: 'local', in_port: '1-72', src_port: '1646 enable', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '16', precedence: '8'}
+        - {action: 'create', name: 'm_dc_nms_radius_11', scope: 'local', in_port: '1-72', src_port: '1812 enable', proto: 'udp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '16', precedence: '8'}
+        - {action: 'create', name: 'm_dc_nms_radius_12', scope: 'local', in_port: '1-72', src_port: '1813 enable', proto: 'udp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '16', precedence: '8'}
+
+        - {action: 'create', name: 'm_dc_aruba_signaling_1', scope: 'local', in_port: '1-72', src_port: '500 enable', proto: 'udp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '30', precedence: '12'}
+
+        - {action: 'create', name: 'm_dc_ucce_ctios_1', scope: 'local', in_port: '1-72', src_port: '42028 enable', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '24', precedence: '11'}
+      register: output
+    - debug:
+        var: output
+
+
+# This task is to add vflows.
+# It uses pn_vflow.py module from library/ directory.
+- name: vflow module
+  hosts: spine, leaf
+  tags: vflow6
+
+  vars_files:
+  - cli_vault.yml
+
+  tasks:
+    - name: vflow module
+      pn_vflow: pn_action={{ item.action }} pn_name={{ item.name }} pn_scope={{ item.scope }} pn_inport={{ item.in_port }} pn_dst_port={{ item.dst_port }} pn_proto={{ item.proto }} pn_stats_interval={{ item.stats_interval }} pn_dscp_map={{ item.dscp_map }} pn_dscp_action={{ item.dscp_action }} pn_action_value={{ item.action_value }} pn_precedence={{ item.precedence }}
+      with_items:
+        - {action: 'create', name: 'm_dc_bulkdata_2', scope: 'local', in_port: '1-72', dst_port: '21', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_bulkdata_4', scope: 'local', in_port: '1-72', dst_port: '20', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_bulkdata_6', scope: 'local', in_port: '1-72', dst_port: '22', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_bulkdata_8', scope: 'local', in_port: '1-72', dst_port: '445', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_bulkdata_10', scope: 'local', in_port: '1-72', dst_port: '69', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_bulkdata_19', scope: 'local', in_port: '1-72', dst_port: '790', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_desktop_mgt_2', scope: 'local', in_port: '1-72', dst_port: '5282', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '10', precedence: '10'}
+        - {action: 'create', name: 'm_dc_core_protect_2', scope: 'local', in_port: '1-72', dst_port: '11577', proto: 'udp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_nms_radius_1', scope: 'local', in_port: '1-72', dst_port: '1645 enable', proto: 'udp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '16', precedence: '8'}
+        - {action: 'create', name: 'm_dc_nms_radius_2', scope: 'local', in_port: '1-72', dst_port: '1646 enable', proto: 'udp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '16', precedence: '8'}
+        - {action: 'create', name: 'm_dc_nms_radius_5', scope: 'local', in_port: '1-72', dst_port: '1645 enable', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '16', precedence: '8'}
+        - {action: 'create', name: 'm_dc_nms_radius_6', scope: 'local', in_port: '1-72', dst_port: '1646 enable', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '16', precedence: '8'}
+        - {action: 'create', name: 'm_dc_nms_radius_9', scope: 'local', in_port: '1-72', dst_port: '1812 enable', proto: 'udp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '16', precedence: '8'}
+        - {action: 'create', name: 'm_dc_nms_radius_10', scope: 'local', in_port: '1-72', dst_port: '1813 enable', proto: 'udp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '16', precedence: '8'}
+
+        - {action: 'create', name: 'm_dc_aruba_signaling_2', scope: 'local', in_port: '1-72', dst_port: '500 enable', proto: 'udp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '30', precedence: '12'}
+
+        - {action: 'create', name: 'm_dc_ucce_ctios_2', scope: 'local', in_port: '1-72', dst_port: '42028 enable', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '24', precedence: '11'}
+      register: output
+    - debug:
+        var: output
+
+
+# This task is to add vflows.
+# It uses pn_vflow.py module from library/ directory.
+- name: vflow module
+  hosts: spine, leaf
+  tags: vflow7
+
+  vars_files:
+  - cli_vault.yml
+
+  tasks:
+    - name: vflow module
+      pn_vflow: pn_action={{ item.action }} pn_name={{ item.name }} pn_scope={{ item.scope }} pn_inport={{ item.in_port }} pn_src_ip={{ item.src_ip }} pn_proto={{ item.proto }} pn_stats_interval={{ item.stats_interval }} pn_dscp_map={{ item.dscp_map }} pn_dscp_action={{ item.dscp_action }} pn_action_value={{ item.action_value }} pn_precedence={{ item.precedence }}
+      with_items:
+        - {action: 'create', name: 'm_dc_bulkdata_11', scope: 'local', in_port: '1-72', src_ip: '10.11.209.53 enable', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '12'}
+        - {action: 'create', name: 'm_dc_bulkdata_12', scope: 'local', in_port: '1-72', src_ip: '10.11.210.82 enable', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '12'}
+        - {action: 'create', name: 'm_dc_bulkdata_13', scope: 'local', in_port: '1-72', src_ip: '10.144.208.224 enable', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '12'}
+        - {action: 'create', name: 'm_dc_bulkdata_14', scope: 'local', in_port: '1-72', src_ip: '10.144.210.79 enable', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '12'}
+        - {action: 'create', name: 'm_dc_bulkdata_15', scope: 'local', in_port: '1-72', src_ip: '10.174.132.131 enable', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '12'}
+        - {action: 'create', name: 'm_dc_bulkdata_16', scope: 'local', in_port: '1-72', src_ip: '10.174.132.140 enable', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '12'}
+        - {action: 'create', name: 'm_dc_bulkdata_17', scope: 'local', in_port: '1-72', src_ip: '10.174.159.122 enable', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '12'}
+        - {action: 'create', name: 'm_dc_bulkdata_18', scope: 'local', in_port: '1-72', src_ip: '10.191.135.248 enable', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '12'}
+        - {action: 'create', name: 'm_dc_desktop_proxy_1', scope: 'local', in_port: '1-72', src_ip: '153.114.156.16 enable', proto: 'ip', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_desktop_proxy_2', scope: 'local', in_port: '1-72', src_ip: '153.114.220.16 enable', proto: 'ip', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_desktop_proxy_3', scope: 'local', in_port: '1-72', src_ip: '153.114.253.16 enable', proto: 'ip', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_desktop_proxy_4', scope: 'local', in_port: '1-72', src_ip: '138.83.65.225 enable', proto: 'ip', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_desktop_proxy_5', scope: 'local', in_port: '1-72', src_ip: '138.83.161.241 enable', proto: 'ip', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_desktop_proxy_6', scope: 'local', in_port: '1-72', src_ip: '140.108.3.33 enable', proto: 'ip', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_desktop_proxy_7', scope: 'local', in_port: '1-72', src_ip: '148.131.15.33 enable', proto: 'ip', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_server_web_proxy_1', scope: 'local', in_port: '1-72', src_ip: '153.114.156.17 enable', proto: 'ip', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_server_web_proxy_2', scope: 'local', in_port: '1-72', src_ip: '153.114.220.17 enable', proto: 'ip', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_server_web_proxy_3', scope: 'local', in_port: '1-72', src_ip: '153.114.253.17 enable', proto: 'ip', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_retail_proxy_1', scope: 'local', in_port: '1-72', src_ip: '153.114.156.18 enable', proto: 'ip', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_retail_proxy_2', scope: 'local', in_port: '1-72', src_ip: '153.114.220.18 enable', proto: 'ip', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_retail_proxy_3', scope: 'local', in_port: '1-72', src_ip: '153.114.253.18 enable', proto: 'ip', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_pos_proxy_1', scope: 'local', in_port: '1-72', src_ip: '153.114.156.19 enable', proto: 'ip', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_pos_proxy_2', scope: 'local', in_port: '1-72', src_ip: '153.114.220.19 enable', proto: 'ip', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_pos_proxy_3', scope: 'local', in_port: '1-72', src_ip: '153.114.253.19 enable', proto: 'ip', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+
+        - {action: 'create', name: 'm_dc_mocana_proxy_1', scope: 'local', in_port: '1-72', src_ip: '153.114.156.20 enable', proto: 'ip', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_mocana_proxy_2', scope: 'local', in_port: '1-72', src_ip: '153.114.220.20 enable', proto: 'ip', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_mocana_proxy_3', scope: 'local', in_port: '1-72', src_ip: '153.114.253.20 enable', proto: 'ip', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+
+        - {action: 'create', name: 'm_dc_secure_vendor_proxy_1', scope: 'local', in_port: '1-72', src_ip: '153.114.156.21 enable', proto: 'ip', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_secure_vendor_proxy_2', scope: 'local', in_port: '1-72', src_ip: '153.114.220.21 enable', proto: 'ip', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_secure_vendor_proxy_3', scope: 'local', in_port: '1-72', src_ip: '153.114.253.21 enable', proto: 'ip', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+
+        - {action: 'create', name: 'm_dc_pac_proxy_1', scope: 'local', in_port: '1-72', src_ip: '153.114.156.50 enable', proto: 'ip', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_pac_proxy_2', scope: 'local', in_port: '1-72', src_ip: '153.114.220.50 enable', proto: 'ip', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+        - {action: 'create', name: 'm_dc_pac_proxy_3', scope: 'local', in_port: '1-72', src_ip: '153.114.253.50 enable', proto: 'ip', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '9'}
+      register: output
+    - debug:
+        var: output
+
+
+# This task is to add vflows.
+# It uses pn_vflow.py module from library/ directory.
+- name: vflow module
+  hosts: spine, leaf
+  tags: vflow8
+
+  vars_files:
+  - cli_vault.yml
+
+  tasks:
+    - name: vflow module
+      pn_vflow: pn_action={{ item.action }} pn_name={{ item.name }} pn_scope={{ item.scope }} pn_inport={{ item.in_port }} pn_src_ip={{ item.src_ip }} pn_stats_interval={{ item.stats_interval }} pn_dscp_map={{ item.dscp_map }} pn_dscp_action={{ item.dscp_action }} pn_action_value={{ item.action_value }} pn_precedence={{ item.precedence }}
+      with_items:
+        - {action: 'create', name: 'm_dc_sccm_1', scope: 'local', in_port: '1-72', src_ip: '10.170.34.159 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '10', precedence: '6'}
+        - {action: 'create', name: 'm_dc_sccm_2', scope: 'local', in_port: '1-72', src_ip: '10.170.34.162 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '10', precedence: '6'}
+        - {action: 'create', name: 'm_dc_sccm_3', scope: 'local', in_port: '1-72', src_ip: '10.170.34.164 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '10', precedence: '6'}
+        - {action: 'create', name: 'm_dc_sccm_4', scope: 'local', in_port: '1-72', src_ip: '10.144.209.195 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '10', precedence: '6'}
+        - {action: 'create', name: 'm_dc_sccm_5', scope: 'local', in_port: '1-72', src_ip: '10.144.208.152 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '10', precedence: '6'}
+        - {action: 'create', name: 'm_dc_sccm_6', scope: 'local', in_port: '1-72', src_ip: '10.144.211.198 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '10', precedence: '6'}
+        - {action: 'create', name: 'm_dc_sccm_7', scope: 'local', in_port: '1-72', src_ip: '10.144.211.199 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '10', precedence: '6'}
+        - {action: 'create', name: 'm_dc_sccm_8', scope: 'local', in_port: '1-72', src_ip: '10.11.208.210 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '10', precedence: '6'}
+        - {action: 'create', name: 'm_dc_sccm_9', scope: 'local', in_port: '1-72', src_ip: '10.11.211.94 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '10', precedence: '6'}
+        - {action: 'create', name: 'm_dc_sccm_10', scope: 'local', in_port: '1-72', src_ip: '10.11.211.95 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '10', precedence: '6'}
+
+        - {action: 'create', name: 'm_dc_exchange_1', scope: 'local', in_port: '1-72', src_ip: '10.170.61.61 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '6'}
+        - {action: 'create', name: 'm_dc_exchange_2', scope: 'local', in_port: '1-72', src_ip: '10.144.60.225 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '6'}
+        - {action: 'create', name: 'm_dc_exchange_3', scope: 'local', in_port: '1-72', src_ip: '10.11.61.61 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '6'}
+        - {action: 'create', name: 'm_dc_exchange_4', scope: 'local', in_port: '1-72', src_ip: '10.144.61.61 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '6'}
+        - {action: 'create', name: 'm_dc_exchange_5', scope: 'local', in_port: '1-72', src_ip: '148.131.9.132 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '6'}
+        - {action: 'create', name: 'm_dc_exchange_6', scope: 'local', in_port: '1-72', src_ip: '148.131.27.212 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '22', precedence: '6'}
+      register: output
+    - debug:
+        var: output
+
+
+# This task is to add vflows.
+# It uses pn_vflow.py module from library/ directory.
+- name: vflow module
+  hosts: spine, leaf
+  tags: vflow9
+
+  vars_files:
+  - cli_vault.yml
+
+  tasks:
+    - name: vflow module
+      pn_vflow: pn_action={{ item.action }} pn_name={{ item.name }} pn_scope={{ item.scope }} pn_inport={{ item.in_port }} pn_src_ip={{ item.src_ip }} pn_src_port={{ item.src_port }} pn_proto={{ item.proto }} pn_stats_interval={{ item.stats_interval }} pn_dscp_map={{ item.dscp_map }} pn_dscp_action={{ item.dscp_action }} pn_action_value={{ item.action_value }} pn_precedence={{ item.precedence }}
+      with_items:
+        - {action: 'create', name: 'm_dc_nms_tacacs_1', scope: 'local', in_port: '1-72', src_ip: '138.83.165.16', src_port: '49 enable', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '16', precedence: '12'}
+        - {action: 'create', name: 'm_dc_nms_tacacs_2', scope: 'local', in_port: '1-72', src_ip: '138.83.67.3', src_port: '49 enable' ,proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '16', precedence: '12'}
+        - {action: 'create', name: 'm_dc_nms_tacacs_3', scope: 'local', in_port: '1-72', src_ip: '166.68.195.13', src_port: '49 enable', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '16', precedence: '12'}
+        - {action: 'create', name: 'm_dc_nms_tacacs_4', scope: 'local', in_port: '1-72', src_ip: '166.68.227.41', src_port: '49 enable', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '16', precedence: '12'}
+        - {action: 'create', name: 'm_dc_nms_tacacs_5', scope: 'local', in_port: '1-72', src_ip: '161.128.136.115', src_port: '49 enable', proto: 'tcp', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '16', precedence: '12'}
+      register: output
+    - debug:
+        var: output
+
+
+# This task is to add vflows.
+# It uses pn_vflow.py module from library/ directory.
+- name: vflow module
+  hosts: spine, leaf
+  tags: vflow10
+
+  vars_files:
+  - cli_vault.yml
+
+  tasks:
+    - name: vflow module
+      pn_vflow: pn_action={{ item.action }} pn_name={{ item.name }} pn_scope={{ item.scope }} pn_inport={{ item.in_port }} pn_src_ip={{ item.src_ip }} pn_stats_interval={{ item.stats_interval }} pn_dscp_map={{ item.dscp_map }} pn_dscp_action={{ item.dscp_action }} pn_action_value={{ item.action_value }} pn_precedence={{ item.precedence }}
+      with_items:
+        - {action: 'create', name: 'm_dc_guest_wifi_1', scope: 'local', in_port: '1-72', src_ip: '10.144.226.20 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '0', precedence: '6'}
+        - {action: 'create', name: 'm_dc_guest_wifi_2', scope: 'local', in_port: '1-72', src_ip: ' 10.144.226.21 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '0', precedence: '6'}
+        - {action: 'create', name: 'm_dc_guest_wifi_3', scope: 'local', in_port: '1-72', src_ip: ' 10.144.226.22 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '0', precedence: '6'}
+        - {action: 'create', name: 'm_dc_guest_wifi_4', scope: 'local', in_port: '1-72', src_ip: ' 10.11.226.20 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '0', precedence: '6'}
+        - {action: 'create', name: 'm_dc_guest_wifi_5', scope: 'local', in_port: '1-72', src_ip: ' 10.11.226.21 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '0', precedence: '6'}
+        - {action: 'create', name: 'm_dc_guest_wifi_6', scope: 'local', in_port: '1-72', src_ip: ' 10.11.226.22 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '0', precedence: '6'}
+        - {action: 'create', name: 'm_dc_guest_wifi_7', scope: 'local', in_port: '1-72', src_ip: ' 10.170.226.20 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '0', precedence: '6'}
+        - {action: 'create', name: 'm_dc_guest_wifi_8', scope: 'local', in_port: '1-72', src_ip: ' 10.170.226.21 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '0', precedence: '6'}
+        - {action: 'create', name: 'm_dc_guest_wifi_9', scope: 'local', in_port: '1-72', src_ip: ' 10.170.226.22 enable', stats_interval: '10 log-stats', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '0', precedence: '6'}
+      register: output
+    - debug:
+        var: output
+
+
+# This task is to add vflows.
+# It uses pn_vflow.py module from library/ directory.
+- name: vflow module
+  hosts: spine, leaf
+  tags: vflow11
+
+  vars_files:
+  - cli_vault.yml
+
+  tasks:
+    - name: vflow module
+      pn_vflow: pn_action={{ item.action }} pn_name={{ item.name }} pn_scope={{ item.scope }} pn_inport={{ item.in_port }} pn_stats_interval={{ item.stats_interval }} pn_log_stats=True pn_dscp_map={{ item.dscp_map }} pn_vlan_pri={{ item.vlan_pri }} pn_burst_size={{ item.burst_size }} pn_dscp_action={{ item.dscp_action }} pn_action_value={{ item.action_value }} pn_precedence={{ item.precedence }} 
+      with_items:
+        - {action: 'create', name: 'Vlan_Priority_1', scope: 'local', in_port: '1-72', stats_interval: '10', vlan_pri: '6', burst_size: 'auto', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '48', precedence: '13'}
+        - {action: 'create', name: 'Vlan_Priority_2', scope: 'local', in_port: '1-72', stats_interval: '10', vlan_pri: '7', burst_size: 'auto', dscp_map: 'verizon_qos', dscp_action: 'set-dscp', action_value: '56', precedence: '13'}
+      register: output
+    - debug:
+        var: output
+
+
+# This task is to add vflows.
+# It uses pn_vflow.py module from library/ directory.
+- name: vflow module
+  hosts: spine, leaf
+  tags: vflow12
+
+  vars_files:
+  - cli_vault.yml
+
+  tasks:
+    - name: vflow module
+      pn_vflow: pn_action={{ item.action }} pn_name={{ item.name }} pn_scope='local' pn_inport='1-72' pn_stats_interval='10' pn_log_stats=True pn_dscp_map='verizon_qos'  pn_dscp_action={{ item.dscp_action }} pn_action_value={{ item.action_value }}
+      with_items:
+        - {action: 'create', name: 'm_dc_subnets_1', dscp_action: 'set-dscp', action_value: '28'}
+      register: output
+    - debug:
+        var: output
+
+# This task is to add vflows.
+# It uses pn_vflow.py module from library/ directory.
+- name: vflow module
+  hosts: spine, leaf
+  tags: vflow13
+
+  vars_files:
+  - cli_vault.yml
+
+  tasks:
+    - name: vflow module
+      pn_vflow: pn_action={{ item.action }} pn_name={{ item.name }} pn_scope='local' pn_inport='1-72' pn_proto='ip' pn_src_ip={{ item.src_ip }} pn_enable=True pn_stats_interval='10' pn_log_stats=True pn_dscp_map='verizon_qos'  pn_dscp_action={{ item.dscp_action }} pn_action_value={{ item.action_value }} pn_precedence='9'
+      with_items:
+        - {action: 'create', name: 'm_dc_mocana_retail_proxy_1', src_ip: '153.114.156.22', dscp_action: 'set-dscp', action_value: '22'}
+        - {action: 'create', name: 'm_dc_mocana_retail_proxy_2', src_ip: '153.114.220.22', dscp_action: 'set-dscp', action_value: '22'}
+        - {action: 'create', name: 'm_dc_mocana_retail_proxy_3', src_ip: '153.114.253.22', dscp_action: 'set-dscp', action_value: '22'}
+      register: output
+    - debug:
+        var: output

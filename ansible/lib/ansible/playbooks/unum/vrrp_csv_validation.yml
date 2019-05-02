@@ -1,0 +1,19 @@
+#Vrrp CSV Validation
+---
+
+
+- name: Validate Vrrp CSV File
+  hosts: localhost
+
+  tasks:
+    # This task is to validate vrrp csv file.
+    - name: Validate vrrp config in csv file
+      pn_vrrp_csv_validation:
+        pn_csv_data: "{{ lookup('file', '{{ vrrp_csv_file }}') }}"
+        pn_switch_list: "{{ groups['switch'] }}"
+      register: csv_out
+
+    # Playbook execution will fail if csv file is invalid.
+    - fail:
+        msg: "Invalid csv file"
+      when: csv_out.failed == true

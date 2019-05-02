@@ -1,0 +1,18 @@
+#SVI CSV Validation
+---
+
+
+- name: Validate SVI CSV File
+  hosts: localhost
+
+  tasks:
+    # This task is to validate svi csv file.
+    - name: Validate svi config in csv file
+      pn_svi_csv_validation:
+        pn_svi_data: "{{ lookup('file', '{{ svi_csv_file }}') }}"
+      register: csv_out
+
+    # Playbook execution will fail if csv file is invalid.
+    - fail:
+        msg: "Invalid csv file"
+      when: csv_out.failed == true

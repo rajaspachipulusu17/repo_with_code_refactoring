@@ -1,0 +1,4 @@
+490, 104.255.61.129/29, 2620:0000:167F:b002::1/120, hmplabpsq-we50100, hmplabpsq-we50200, 15, hmplabpsq-we50100
+244, 104.255.62.161/27, 2620:0:167f:b015::1/64, hmplabpsq-we50100, hmplabpsq-we50200, 15, hmplabpsq-we50100
+490, 104.255.61.137/29, 2620:0000:167F:b002::101/120, hmplabpsq-we50300, hmplabpsq-we50400, 15, hmplabpsq-we50300
+490, 104.255.61.145/29, 2620:0000:167F:b002::201/120, hmplabpsq-we50500, hmplabpsq-we50600, 15, hmplabpsq-we50500

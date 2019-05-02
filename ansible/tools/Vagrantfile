@@ -1,0 +1,40 @@
+GIT_USER=ENV["GIT_USER"]
+GIT_PASS=ENV["GIT_PASS"]
+BRANCH_NAME=ENV["BRANCH_NAME"]
+ANSIBLE_VERSION=ENV["ANSIBLE_VERSION"]
+PARAMIKO_VERSION=ENV["PARAMIKO_VERSION"]
+
+Vagrant.configure("2") do |config|
+
+  config.vm.box = 'vsphere-dummy-ansible'
+  config.vm.hostname = 'PN-Ansible'
+  config.nfs.functional = false
+  config.ssh.insert_key=false
+
+  config.vm.provider :vsphere do |vsphere|
+    # The vSphere host we're going to connect to
+    vsphere.host = 'vcenter-colo.pluribusnetworks.com'
+    # The ESX host for the new VM
+    vsphere.compute_resource_name ='VCFC-Cluster'
+    # The template we're going to clone
+    vsphere.data_center_name = 'VCFC-DataCenter'
+    vsphere.template_name = 'Ansible/template'
+    # The name of the new machine
+    vsphere.name = 'PN-ANSIBLE-jenkins'
+    # vSphere login
+    vsphere.user = 'administrator@lab.pluribus'
+    # vSphere password
+    vsphere.password = 'MyTest-456'
+    # Notes
+    vsphere.notes = <<-NOTES
+Ansible OVA
+Copyright (©) 2018-2019 Pluribus Networks
+Use subject to license agreement
+NOTES
+  vsphere.insecure = true
+  end
+
+  config.vm.provision :shell, :path => "bootstrap.sh", :env => { "GIT_USER" => GIT_USER,  "GIT_PASS" => GIT_PASS, "BRANCH_NAME" => BRANCH_NAME, "ANSIBLE_VERSION" => ANSIBLE_VERSION, "PARAMIKO_VERSION" => PARAMIKO_VERSION }
+  config.vm.network "public_network", use_dhcp_assigned_default_route:true
+  config.vm.boot_timeout = 700
+end

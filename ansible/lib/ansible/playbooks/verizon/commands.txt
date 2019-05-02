@@ -1,0 +1,36 @@
+#
+# Command to run entire playbook
+#
+ansible-playbook -i ./hemplab_hosts pn_verizon.yml --ask-vault-pass -vvvv
+ansible-playbook -i ./hemplab_hosts pn_verizon_qos.yml --ask-vault-pass -vvvv
+
+
+#
+# Command to run specific tasks
+#
+ansible-playbook -i ./hemplab_hosts pn_verizon.yml --ask-vault-pass -vvvv --tags "dhcp-filter,user-create,aaa-tacacs"
+
+
+#
+# Command to skip certain taks
+#
+ansible-playbook -i ./hemplab_hosts pn_verizon.yml --ask-vault-pass -vvvv --skip-tags "eula-accept,fabric-setup"
+
+
+#
+# Command to start playbook execution from specific task
+#
+ansible-playbook -i ./hemplab_hosts pn_verizon.yml --ask-vault-pass -vvvv --start-at-task "Enable cpu class"
+
+
+#
+# Command to run only on certain hosts
+#
+ansible-playbook -i ./hemplab_hosts pn_verizon.yml --ask-vault-pass -vvvv --tags "fabric-setup" --limit leaf
+
+
+#
+# Command to edit vault file
+# commands: create|delete|edit|view
+#
+ansible-vault view cli_vault.yml

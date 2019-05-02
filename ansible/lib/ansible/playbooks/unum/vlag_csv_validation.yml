@@ -1,0 +1,19 @@
+#Vlag CSV Validation
+---
+
+
+- name: Validate Vlag CSV File
+  hosts: localhost
+
+  tasks:
+    # This task is to validate vlag csv file.
+    - name: Validate vlag config in csv file
+      pn_vlag_csv_validation:
+        pn_csv_data: "{{ lookup('file', '{{ vlag_csv_file }}') }}"
+        pn_switch_list: "{{ groups['switch'] }}"
+      register: csv_out
+
+    # Playbook execution will fail if csv file is invalid.
+    - fail:
+        msg: "Invalid csv file"
+      when: csv_out.failed == true

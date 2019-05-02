@@ -1,0 +1,9 @@
+[spine]
+ansible-spine1 ansible_host=10.110.0.160
+ansible-spine2 ansible_host=10.110.0.161
+
+[leaf]
+ansible-leaf1 ansible_host=10.110.0.162
+ansible-leaf2 ansible_host=10.110.0.163
+ansible-leaf3 ansible_host=10.110.0.164
+ansible-leaf4 ansible_host=10.110.0.165

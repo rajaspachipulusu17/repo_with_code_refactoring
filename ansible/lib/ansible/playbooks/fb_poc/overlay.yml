@@ -1,0 +1,221 @@
+---
+
+# Overlay VLANs
+
+- name: "Rack1 Overlay VLAN"
+  hosts: leaf[0], leaf[1]
+  tags: rack1-overlay-vlan
+
+  tasks:
+    - name: "Rack1 Overlay VLAN"
+      pn_vlan:
+        pn_action: "create"
+        pn_vlanid: "10"
+        pn_scope: "local"
+        pn_vxlan: "100000"
+        pn_ports: "none"
+      register: output
+
+- name: "Rack2 Overlay VLAN"
+  hosts: leaf[2], leaf[3]
+  tags: rack2-overlay-vlan
+
+  tasks:
+    - name: "Rack2 Overlay VLAN"
+      pn_vlan:
+        pn_action: "create"
+        pn_vlanid: "11"
+        pn_scope: "local"
+        pn_vxlan: "110000"
+        pn_ports: "none"
+      register: output
+
+# Add VXLAN-VLANs to VTEPs
+
+- name: "Add VXLAN-VLANs to VTEPs"
+  hosts: leaf[0]
+  tags: vxlan-vlan
+
+  tasks:
+    - name: "Add VXLAN-VLANs to VTEPs"
+      pn_vtep_vxlan:
+        pn_action: "add"
+        pn_name: "{{ item.name }}"
+        pn_vxlan: "{{ item.vxlan }}"
+      with_items:
+        - {name: 'LEAF-1', vxlan: '100000'}
+        - {name: 'LEAF-1', vxlan: '110000'}
+        - {name: 'LEAF-2', vxlan: '100000'}
+        - {name: 'LEAF-2', vxlan: '110000'}
+        - {name: 'LEAF-3', vxlan: '100000'}
+        - {name: 'LEAF-3', vxlan: '110000'}
+        - {name: 'LEAF-4', vxlan: '100000'}
+        - {name: 'LEAF-4', vxlan: '110000'}
+      register: output
+
+# Add ports to VLAN
+
+- name: "Add ports to VLAN"
+  hosts: leaf
+  tags: vlanport
+
+  tasks:
+    - name: "Add ports to VLAN"
+      pn_vlan_port:
+        pn_action: "add"
+        pn_vlan_range: "10,11"
+        pn_ports: "2"
+      register: output
+
+# VLAGs
+
+- name: "Create VLAGs"
+  hosts: leaf[0]
+  tags: host1-vlag
+
+  tasks:
+    - name: "Create VLAGs"
+      pn_vlag:
+        pn_action: "create"
+        pn_name: "host-1"
+        pn_port: "2"
+        pn_peer_port: "2"
+        pn_mode: "active-active"
+      register: output
+
+- name: "Create VLAGs"
+  hosts: leaf[2]
+  tags: host2-vlag
+
+  tasks:
+    - name: "Create VLAGs"
+      pn_vlag:
+        pn_action: "create"
+        pn_name: "host-2"
+        pn_port: "2"
+        pn_peer_port: "2"
+        pn_mode: "active-active"
+      register: output
+
+
+# Recirculation port to VLANs
+
+- name: "Add recirculation ports"
+  hosts: all
+  tags: recirculation-ports
+
+  tasks:
+    - name: "Add recirculation ports"
+      pn_vlan_port:
+        pn_action: "add"
+        pn_vlan_range: "10,11"
+        pn_ports: "13"
+      register: output
+
+# VRF GW
+
+# Transit VLANs
+
+- name: "Transit VLANs"
+  hosts: all
+  tags: transit-vlan
+
+  tasks:
+    - name: "Transit VLANs"
+      pn_vlan:
+        pn_action: "create"
+        pn_vlanid: "12"
+        pn_scope: "local"
+        pn_vxlan: "120000"
+        pn_ports: "none"
+      register: output
+
+# VTEP-VXLAN
+
+- name: "Add VXLAN-VLANs to VTEPs"
+  hosts: leaf[0]
+  tags: transit-vtep-vxlan
+
+  tasks:
+    - name: "Add VXLAN-VLANs to VTEPs"
+      pn_vtep_vxlan:
+        pn_action: "add"
+        pn_name: "{{ item }}"
+        pn_vxlan: "120000"
+      with_items:
+        - 'LEAF-1'
+        - 'LEAF-2'
+        - 'LEAF-3'
+        - 'LEAF-4'
+      register: output
+
+# VLAN ports
+
+- name: "Add transit VLAN ports"
+  hosts: leaf[2], leaf[3]
+  tags: gw-vlan-ports
+
+  tasks:
+    - name: "Add transit VLAN ports"
+      pn_vlan_port:
+        pn_action: "add"
+        pn_vlan_range: "12"
+        pn_ports: "19"
+      register: output
+
+- name: "Create VLAGs"
+  hosts: leaf[2]
+  tags: gw-vlag
+
+  tasks:
+    - name: "Create VLAGs"
+      pn_vlag:
+        pn_action: "create"
+        pn_name: "GW-1"
+        pn_port: "19"
+        pn_peer_port: "19"
+        pn_mode: "active-active"
+        pn_lacp_mode: "active"
+      register: output
+
+- name: "Add transit VLAN ports"
+  hosts: leaf
+  tags: transit-vlan-ports
+
+  tasks:
+    - name: "Add transit VLAN ports"
+      pn_vlan_port:
+        pn_action: "add"
+        pn_vlan_range: "12"
+        pn_ports: "13"
+      register: output
+
+# Subnet
+
+- name: "Define Subnets"
+  hosts: leaf[0]
+  tags: transit-subnet
+
+  tasks:
+    - name: "Define Subnets"
+      pn_subnet:
+        pn_action: "create"
+        pn_vxlan: "120000"
+        pn_network: "172.1.12.0/24"
+        pn_vrf: "VRF-1"
+        pn_anycast_gw_ip: "172.1.12.1"
+      register: output
+
+# VRF modify
+
+- name: "VRF GW"
+  hosts: leaf
+  tags: gw-vrf
+  
+  tasks:
+    - name: "VRF GW"
+      pn_vrf:
+        pn_action: "modify"
+        pn_name: "VRF-1"
+        pn_vrf_gw: "172.1.12.2"
+      register: output

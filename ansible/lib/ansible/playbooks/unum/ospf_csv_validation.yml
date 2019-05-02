@@ -1,0 +1,19 @@
+#OSPF CSV Validation
+---
+
+
+- name: Validate OSPF CSV File
+  hosts: localhost
+
+  tasks:
+    # This task is to validate ospf csv file.
+    - name: Validate ospf config in csv file
+      pn_ospf_csv_validation:
+        pn_ospf_data: "{{ lookup('file', '{{ ospf_csv_file }}') }}"
+        pn_switch_list: "{{ groups['switch'] }}"
+      register: csv_out
+
+    # Playbook execution will fail if csv file is invalid.
+    - fail:
+        msg: "Invalid csv file"
+      when: csv_out.failed == true

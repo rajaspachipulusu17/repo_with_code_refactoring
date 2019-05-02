@@ -1,0 +1,18 @@
+#Hosts file validation
+---
+
+
+- name: Validate Hosts file
+  hosts: localhost
+
+  tasks:
+    # This task is to validate hosts file.
+    - name: Validate Hosts file
+      pn_hosts_file_validation:
+        pn_hosts_file_data: "{{ lookup('file', '{{ hosts_file }}') }}"
+      register: out
+
+    # Playbook execution will fail if hosts file is invalid.
+    - fail:
+        msg: "Invalid hosts file"
+      when: out.failed == true

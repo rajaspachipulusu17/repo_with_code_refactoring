@@ -1,0 +1,31 @@
+#L3 Single Routed OSPF with L2
+---
+
+- name: Configure L3 single routed ospf with L2
+  hosts: switch[0]
+
+  tasks:
+    - name: Create vlans
+      pn_vlan_creation:
+        pn_switch: "{{ inventory_hostname }}"
+        pn_vlan_data: "{{ lookup('file', '{{ vlan_csv_file }}') }}"
+
+    - name: Create trunks
+      pn_trunk_creation:
+        pn_switch_list: "{{ groups['switch'] }}"
+        pn_trunk_data: "{{ lookup('file', '{{ trunk_csv_file }}') }}"
+
+    - name: Create vrouter
+      pn_vrouter_creation:
+        pn_loopback_ip: "{{ pn_loopback_ip }}"
+        pn_switch_list: "{{ groups['switch'] }}"
+
+    - name: Configure OSPF
+      pn_ospf_configuration:
+        pn_switch_list: "{{ groups['switch'] }}"
+        pn_ospf_data: "{{ lookup('file', '{{ ospf_csv_file }}') }}"
+
+    - name: Configure SVI
+      pn_svi_configuration:
+        pn_switch: "{{ inventory_hostname }}"
+        pn_svi_data: "{{ lookup('file', '{{ svi_csv_file }}') }}"

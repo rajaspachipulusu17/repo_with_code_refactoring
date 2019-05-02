@@ -1,0 +1,19 @@
+#L3 VRRP CSV Validation
+---
+
+
+- name: Validate L3 VRRP CSV File
+  hosts: localhost
+
+  tasks:
+    # This task is to validate L3 VRRP csv file.
+    - name: Validate L3 VRRP csv file
+      pn_l3_vrrp_csv_validation:
+        pn_csv_data: "{{ lookup('file', '{{ csv_file }}') }}"
+        pn_leaf_list: "{{ groups['leaf'] }}"
+      register: csv_out
+
+    # Playbook execution will fail if csv file is invalid.
+    - fail:
+        msg: "Invalid csv file"
+      when: csv_out.failed == true

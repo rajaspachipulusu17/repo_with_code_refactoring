@@ -1,0 +1,19 @@
+#BGP CSV Validation
+---
+
+
+- name: Validate BGP CSV File
+  hosts: localhost
+
+  tasks:
+    # This task is to validate bgp csv file.
+    - name: Validate vlag config in csv file
+      pn_bgp_csv_validation:
+        pn_bgp_data: "{{ lookup('file', '{{ bgp_csv_file }}') }}"
+        pn_switch_list: "{{ groups['switch'] }}"
+      register: csv_out
+
+    # Playbook execution will fail if csv file is invalid.
+    - fail:
+        msg: "Invalid csv file"
+      when: csv_out.failed == true

@@ -1,0 +1,63 @@
+#L2 VRRP
+---
+
+
+# This task is to configure ZTP layer 2 setup.
+# It uses pn_l2_ztp.py module from library/ directory.
+# If the tasks fails then it will retry as specified by retries count.
+- name: Virtual Router Redundancy Protocol (VRRP) - Layer 2 Setup
+  hosts: spine[0]
+
+  tasks:
+    - name: Configure auto vlag
+      pn_l2_ztp:
+        pn_spine_list: "{{ groups['spine'] }}"  # List of all spine switches mentioned under [spine] grp in hosts file.
+        pn_leaf_list: "{{ groups['leaf'] }}"    # List of all leaf switches mentioned under [leaf] grp in hosts file.
+        pn_update_fabric_to_inband: "{{ pn_update_fabric_to_inband }}"  # Flag to indicate if fabric network should be updated to in-band. Default: False.
+        pn_stp: "{{ pn_stp }}"                  # Specify True if you want to enable STP at the end. Default: False.
+      register: ztp_l2_out                      # Variable to hold/register output of the above tasks.
+      until:  ztp_l2_out.failed != true         # If error pops up it will retry the code.
+      retries: 3                                # This is the retries count.
+      delay: 3
+
+
+# This task will create vrouter on spine switches.
+# It uses pn_ztp_vrouter_setup.py module from library/ directory.
+# If the tasks fails then it will retry as specified by retries count.
+- name: Create vrouter
+  hosts: spine
+  tags: vrouter
+  serial: 1
+
+  tasks:
+    - name: Setup vrouter
+      pn_ztp_vrouter_setup:
+        pn_current_switch: "{{ inventory_hostname }}"       # The name of the current executing switch
+        pn_spine_list: "{{ groups['spine'] }}"              # List of all spine switches mentioned under [spine] grp in hosts file.
+        pn_leaf_list: "{{ groups['leaf'] }}"                # List of all leaf switches mentioned under [leaf] grp in hosts file.
+        pn_vrrp_id: "{{ pn_vrrp_id }}"                      # Vrrp-id for the vrouters.
+      register: vrouter_out                                 # Variable to hold/register output of the above tasks.
+      until: vrouter_out.failed != true                     # If the above code fails it will retry the code
+      retries: 3                                            # This is the retries count
+      delay: 3
+
+
+# This task will configure vrouter interfaces on spine switches.
+# It uses pn_ztp_l2_vrrp.py module from library/ directory.
+# If the tasks fails then it will retry as specified by retries count.
+- name: Configure VRRP L2
+  hosts: spine
+  tags: vrouter
+  serial: 1
+
+  tasks:
+    - name: Configure VRRP L2
+      pn_ztp_l2_vrrp:
+        pn_current_switch: "{{ inventory_hostname }}" # The name of the current executing switch
+        pn_spine_list: "{{ groups['spine'] }}"  # List of all spine switches mentioned under [spine] grp in hosts file.
+        pn_leaf_list: "{{ groups['leaf'] }}"    # List of all leaf switches mentioned under [leaf] grp in hosts file.
+        pn_csv_data: "{{ lookup('file', '{{ csv_file }}') }}"  # VRRP layer2 data specified in csv file.
+      register: vrrp_out                        # Variable to hold/register output of the above tasks.
+      until:  vrrp_out.failed != true           # If error pops up it will retry the code
+      retries: 3                                # This is the retries count
+      delay: 1

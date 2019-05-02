@@ -1,0 +1,14 @@
+---
+- name: Reset switches
+  hosts: localhost
+
+  vars_files:
+  - cli_vault.yml
+
+  tasks:
+    - name: Switch config reset
+      pn_switch_config_reset:
+        pn_cliusername: "{{ ansible_user }}"                    # Cli username (value comes from cli_vault.yml).
+        pn_clipassword: "{{ ansible_ssh_pass }}"                # Cli password (value comes from cli_vault.yml).
+        pn_host_list: "{{ groups['spine'] }} + {{ groups['leaf'] }}"        # List of all switches
+        pn_host_ips: "{{ (groups['spine'] + groups['leaf']) | map('extract', hostvars, ['ansible_host']) | join(',') }}"  # IPs of all switches separated by comma

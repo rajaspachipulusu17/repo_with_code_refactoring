@@ -1,0 +1,11 @@
+[spine]
+tmtrflaan-de60116 ansible_host=159.67.206.254
+tmtrflaan-de60216 ansible_host=159.67.206.253
+tmtrflaan-de60316 ansible_host=159.67.206.252
+tmtrflaan-de60416 ansible_host=159.67.206.251
+
+[leaf]
+tmtrflaan-we50116 ansible_host=159.67.206.250
+tmtrflaan-we50216 ansible_host=159.67.206.249
+tmtrflaan-we50316 ansible_host=159.67.206.248
+tmtrflaan-we50416 ansible_host=159.67.206.247

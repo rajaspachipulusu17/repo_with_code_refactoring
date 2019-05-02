@@ -1,0 +1,16 @@
+#L3 Single Routed BGP
+---
+
+- name: Configure L3 single routed BGP
+  hosts: switch[0]
+
+  tasks:
+    - name: Create vrouter
+      pn_vrouter_creation:
+        pn_loopback_ip: "{{ pn_loopback_ip }}"
+        pn_switch_list: "{{ groups['switch'] }}"
+
+    - name: Configure eBGP
+      pn_ebgp_configuration:
+        pn_switch_list: "{{ groups['switch'] }}"
+        pn_bgp_data: "{{ lookup('file', '{{ bgp_csv_file }}') }}"

@@ -1,0 +1,43 @@
+#L3 OSPF with VRRP
+---
+
+- name: Configure L3 OSPF with VRRP
+  hosts: switch[0]
+
+  tasks:
+    - name: Create cluster
+      pn_cluster_creation:
+        pn_switch_list: "{{ groups['switch'] }}"
+
+    - name: Create vlans
+      pn_vlan_creation:
+        pn_switch: "{{ inventory_hostname }}"
+        pn_vlan_data: "{{ lookup('file', '{{ vlan_csv_file }}') }}"
+
+    - name: Create trunks
+      pn_trunk_creation:
+        pn_switch_list: "{{ groups['switch'] }}"
+        pn_trunk_data: "{{ lookup('file', '{{ trunk_csv_file }}') }}"
+
+    - name: Create vlags
+      pn_vlag_creation:
+        pn_switch_list: "{{ groups['switch'] }}"
+        pn_vlag_data: "{{ lookup('file', '{{ vlag_csv_file }}') }}"
+
+    - name: Create vrouter
+      pn_vrouter_creation:
+        pn_loopback_ip: "{{ pn_loopback_ip }}"
+        pn_vrrp_id: "{{ pn_vrrp_id }}"
+        pn_switch_list: "{{ groups['switch'] }}"
+
+    - name: Configure VRRP
+      pn_vrrp_creation:
+        pn_switch_list: "{{ groups['switch'] }}"        
+        pn_vrrp_id: "{{ pn_vrrp_id }}"
+        pn_vrrp_data: "{{ lookup('file', '{{ vrrp_csv_file }}') }}"
+
+    - name: Configure OSPF
+      pn_ospf_configuration:
+        pn_switch_list: "{{ groups['switch'] }}"
+        pn_ospf_data: "{{ lookup('file', '{{ ospf_csv_file }}') }}"
+

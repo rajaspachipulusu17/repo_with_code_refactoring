@@ -1,0 +1,61 @@
+---
+
+
+# This task is to accept eula.
+# It uses pn_eula_accept.py module from library/ directory.
+# pn_cliusername and pn_clipassword comes from vars file - cli_vault.yml
+- name: Zero Touch Provisioning - Eula accept
+  hosts: localhost
+
+  vars_files:
+  - cli_vault.yml
+
+  tasks:
+    - name: Auto accept EULA
+      pn_ztp_eula_accept:
+        pn_cliusername: "{{ ansible_user }}"               # Cli username (value comes from cli_vault.yml).
+        pn_clipassword: "{{ ansible_ssh_pass }}"               # Cli password (value comes from cli_vault.yml).
+        pn_spine_list: "{{ groups['spine'] | default([]) }}"            # List of all switches
+        pn_leaf_list: "{{ groups['leaf'] | default([])}}"            # List of all switches
+        pn_leaf_ips: "{{ groups['leaf'] | default('') | map('extract', hostvars, ['ansible_host']) | join(',') }}"   # IPs of all switches separated by comma
+        pn_spine_ips: "{{ groups['spine'] | default('') | map('extract', hostvars, ['ansible_host']) | join(',') }}"
+
+
+# This task is to configure initial ZTP setup on all switches.
+# It uses pn_initial_ztp.py module from library/ directory.
+# If the tasks fails then it will retry as specified by retries count.
+- name: Zero Touch Provisioning - Initial setup
+  hosts: all
+  serial: 1
+
+  tasks:
+    - name: Create/Join Fabric, configure switch setup etc.
+      pn_ztp_initial_setup:
+        pn_fabric_name: 'FB-Fabric'           # Name of the fabric to create/join.
+        pn_current_switch: "{{ inventory_hostname }}"  # Name of the switch on which this task is currently getting executed.
+        pn_spine_list: "{{ groups['spine'] }}"         # List of all spine switches mentioned under [spine] grp in hosts file.
+        pn_leaf_list: "{{ groups['leaf'] }}"           # List of all leaf switches mentioned under [leaf] grp in hosts file.
+        pn_toggle_port_speed: True                     # Flag to indicate if 40g/100g ports should be converted to 10g/25g ports or not.
+        pn_inband_ipv4: '10.10.10.21/24'                  # Inband ips to be assigned to switches starting with this value. Default: 172.16.0.0/24.
+        pn_fabric_network: 'mgmt'                      # Choices: in-band or mgmt.  Default: mgmt
+        pn_fabric_control_network: 'mgmt'              # Choices: in-band or mgmt.  Default: mgmt
+        pn_static_setup: False                         # Flag to indicate if static values should be assign to following switch setup params. Default: True.
+        pn_mgmt_ip: "{{ ansible_host }}"               # Specify MGMT-IP value to be assign if pn_static_setup is True.
+        pn_mgmt_ip_subnet: '24'                        # Specify subnet mask for MGMT-IP value to be assign if pn_static_setup is True.
+        pn_gateway_ip: '10.168.200.254'                      # Specify GATEWAY-IP value to be assign if pn_static_setup is True.
+        pn_dns_ip: '8.8.8.8'                        # Specify DNS-IP value to be assign if pn_static_setup is True.
+        pn_dns_secondary_ip: '8.8.4.4'               # Specify DNS-SECONDARY-IP value to be assign if pn_static_setup is True.
+        pn_domain_name: 'fb.gw.lab'         # Specify DOMAIN-NAME value to be assign if pn_static_setup is True.
+        pn_ntp_server: '0.ubuntu.pool.ntp.org'             # Specify NTP-SERVER value to be assign if pn_static_setup is True.
+        pn_web_api: True                               # Flag to enable web api. Default: True
+        pn_stp: False                                  # Specify True if you want to enable STP at the end. Default: False.
+        pn_autotrunk: "enable"                        # Specify enable/disable auto-trunk setting. Default: disable
+        pn_autoneg: False                              # Flag to toggle auto-neg ON/OFF if the setup contains T2+ leaf switches. Default: False
+      register: ztp_out                                # Variable to hold/register output of the above tasks.
+      until: ztp_out.failed != true                    # If the above code fails it will retry the code
+      retries: 3                                       # This is the retries count
+      delay: 3
+      ignore_errors: yes                               # Flag to indicate if we should ignore errors if any.
+
+    - pause:
+        seconds: 2                                     # Pause playbook execution for specified amount of time.

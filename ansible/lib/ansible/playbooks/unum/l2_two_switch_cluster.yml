@@ -1,0 +1,26 @@
+#L2 Two Switch Cluster
+---
+
+
+- name: Configure L2 Two switch cluster
+  hosts: switch[0]
+
+  tasks:
+    - name: Create cluster
+      pn_cluster_creation:
+        pn_switch_list: "{{ groups['switch'] }}"
+
+    - name: Create trunks
+      pn_trunk_creation:
+        pn_switch_list: "{{ groups['switch'] }}"
+        pn_trunk_data: "{{ lookup('file', '{{ trunk_csv_file }}') }}"
+
+    - name: Create vlags
+      pn_vlag_creation:
+        pn_switch_list: "{{ groups['switch'] }}"
+        pn_vlag_data: "{{ lookup('file', '{{ vlag_csv_file }}') }}"
+
+    - name: Create vlans
+      pn_vlan_creation:
+        pn_switch: "{{ inventory_hostname }}"
+        pn_vlan_data: "{{ lookup('file', '{{ vlan_csv_file }}') }}"

@@ -1,0 +1,8 @@
+---
+- name: Test ansible module path 
+  hosts: localhost
+
+  tasks:
+    - name: Test ansible
+      pn_test_ansible:
+        pn_cliswitch: "127.0.0.1"

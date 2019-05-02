@@ -1,0 +1,19 @@
+#Trunk CSV Validation
+---
+
+
+- name: Validate Trunk CSV File
+  hosts: localhost
+
+  tasks:
+    # This task is to validate trunk csv file.
+    - name: Validate trunk config in csv file
+      pn_trunk_csv_validation:
+        pn_csv_data: "{{ lookup('file', '{{ trunk_csv_file }}') }}"
+        pn_switch_list: "{{ groups['switch'] }}"
+      register: csv_out
+
+    # Playbook execution will fail if csv file is invalid.
+    - fail:
+        msg: "Invalid csv file"
+      when: csv_out.failed == true

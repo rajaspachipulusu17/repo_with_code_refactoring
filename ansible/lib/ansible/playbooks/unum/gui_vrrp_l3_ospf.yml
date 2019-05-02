@@ -1,0 +1,129 @@
+# This task will create vrouter on spine switches.
+# It uses pn_ztp_vrouter_setup.py module from library/ directory.
+# If the tasks fails then it will retry as specified by retries count.
+- name: Configure vrouter
+  hosts: spine, leaf
+  tags: vrouter
+  serial: 1
+
+  tasks:
+    - name: Setup vrouter
+      pn_ztp_vrouter_setup:
+        pn_loopback_ip: "{{ pn_loopback_ip }}"              # Loopback network to confgure ipv4 loopback ips to vrouters.
+        pn_current_switch: "{{ inventory_hostname }}"       # The name of the current executing switch
+        pn_spine_list: "{{ groups['spine'] }}"              # List of all spine switches mentioned under [spine] grp in hosts file.
+        pn_leaf_list: "{{ groups['leaf'] }}"                # List of all leaf switches mentioned under [leaf] grp in hosts file.
+        pn_vrrp_id: "{{ pn_vrrp_id }}"                      # Vrrp-id for the vrouters.
+        pn_pim_ssm: "{{ pn_pim_ssm }}"                      # Variable to specify pim_ssm for ospf
+        pn_ospf_redistribute: "{{ pn_ospf_redistribute }}"  # Variable to configure ospf redistribute
+      register: vrouter_out                                 # Variable to hold/register output of the above tasks.
+      until: vrouter_out.failed != true                     # If the above code fails it will retry the code
+      retries: 3                                            # This is the retries count
+      delay: 3
+
+
+
+# This task is to configure VRRP for Layer 3 fabric.
+# It takes required VRRP config data from csv file.
+# It uses pn_ztp_l3_vrrp.py module from library/ directory.
+- name: Configure L3 VRRP
+  hosts: leaf
+  tags: l3-vrrp
+  serial: 1
+
+  tasks:
+    - name: Configure L3 vrrp
+      pn_ztp_l3_vrrp:
+        pn_spine_list: "{{ groups['spine'] }}"                      # List of all spine switches mentioned under [spine] grp in hosts file.
+        pn_leaf_list: "{{ groups['leaf'] }}"                        # List of all leaf switches mentioned under [leaf] grp in hosts file.
+        pn_csv_data: "{{ lookup('file', '{{ csv_file }}') }}"       # Csv file containing L3 vrrp data.
+        pn_current_switch: "{{ inventory_hostname }}"               # Name of the switch on which this task is currently getting executed.
+        pn_pim_ssm: "{{ pn_pim_ssm }}"                              # Variable to specify pim_ssm for ospf
+        pn_jumbo_frames: "{{ pn_jumbo_frames }}"                    # Flag to assign mtu Default: False.
+      register: vrrp_out                                            # Variable to hold/register output of the above tasks.
+      until:  vrrp_out.failed != true                               # If error pops up it will retry the code
+      retries: 3                                                    # This is the retries count
+      delay: 1
+
+
+# This task is to configure ZTP for layer3 fabric.
+# It uses pn_ztp_l3_links.py module from library/ directory.
+# If the tasks fails then it will retry as specified by retries count.
+- name: Configure L3 links
+  hosts: leaf
+  tags: l3-links
+  serial: 1
+
+  tasks:
+    - name: Auto configure link IPs
+      pn_ztp_l3_links:
+        pn_current_switch: "{{ inventory_hostname }}"                   # Name of the switch on which this task is currently getting executed.
+        pn_spine_list: "{{ groups['spine'] }}"                          # List of all spine switches mentioned under [spine] grp in hosts file.
+        pn_leaf_list: "{{ groups['leaf'] }}"                            # List of all leaf switches mentioned under [leaf] grp in hosts file.
+        pn_ipv4_start_address: "{{ pn_ipv4_start_address }}"            # Ipv4 Network address required to calculate link IPs for layer3 fabric.
+        pn_cidr_ipv4: "{{ pn_cidr_ipv4 }}"                              # Ipv4 CIDR required to calculate link IPs for layer3 fabric.
+        pn_subnet_ipv4: "{{ pn_subnet_ipv4 }}"                          # Ipv4 Subnet mask required to calculate link IPs for layer3 fabric.
+        pn_if_nat_realm: "{{ pn_if_nat_realm }}"                        # Type of if_nat_realm. choices=['internal', 'external'], default='internal'
+        pn_bfd: "{{ pn_bfd }}"                                          # Flag to indicate if BFD config should be added to vrouter interfaces. Default: False.
+        pn_bfd_min_rx: "{{ pn_bfd_min_rx }}"                            # BFD-MIN-RX value required for adding BFD configuration to vrouter interfaces.
+        pn_bfd_multiplier: "{{ pn_bfd_multiplier }}"                    # BFD_MULTIPLIER value required for adding BFD configuration to vrouter interfaces.
+        pn_update_fabric_to_inband: "{{ pn_update_fabric_to_inband }}"  # Flag to indicate if fabric network should be updated to in-band. Default: False.
+        pn_jumbo_frames: "{{ pn_jumbo_frames }}"                        # Flag to assign mtu Default: False.
+        pn_stp: "{{ pn_stp }}"                                          # Flag to enable STP (spanning tree protocol). Default: False.
+      register: ztp_l3_out                                              # Variable to hold/register output of the above tasks.
+      until:  ztp_l3_out.failed != true                                 # If error pops up it will retry the code
+      retries: 3                                                        # This is the retries count
+      delay: 1
+
+
+# This task is to configure OSPF.
+# It uses pn_ztp_ospf.py module from library/ directory.
+- name: Configure OSPF
+  hosts: all
+  tags: iospf-leaf
+  serial: 1
+
+  tasks:
+    - name: Configure OSPF
+      pn_ztp_ospf:
+        pn_current_switch: "{{ inventory_hostname }}"             # Name of the switch on which this task is currently getting executed.
+        pn_spine_list: "{{ groups['spine'] }}"                    # List of all spine switches mentioned under [spine] grp in hosts file.
+        pn_leaf_list: "{{ groups['leaf'] }}"                      # List of all leaf switches mentioned under [leaf] grp in hosts file.
+        pn_bfd: "{{ pn_bfd }}"                                    # Indicate if BFD config should be added to eBGP. Default: False.
+        pn_ospf_v4_area_id: "{{ pn_ospf_v4_area_id }}"            # Area id to configure for ospfv4. Default: 0
+        pn_iospf_vlan: "{{ pn_iospf_vlan }}"                      # Vlan for creating the interfaces between leaf clusters. Default:'4040'
+        pn_iospf_ipv4_range: "{{ pn_iospf_ipv4_range }}"          # Ip range for creating the interfaces between leaf clusters.
+        pn_ospf_cidr_ipv4: "{{ pn_ospf_cidr_ipv4 }}"              # subnet count for iospf ip range
+        pn_ospf_subnet_ipv4: "{{ pn_ospf_subnet_ipv4 }}"          # ipv4 subnet for iospf
+        pn_area_configure_flag: "{{ pn_area_configure_flag }}"    # Varible to configure area choices=['singlearea', 'multiarea'], default='singlearea'
+        pn_pim_ssm: "{{ pn_pim_ssm }}"                            # Variable to specify pim_ssm for ospf
+        pn_jumbo_frames: "{{ pn_jumbo_frames }}"                  # Flag to assign mtu Default: False.
+        pn_ospf_cost: "{{ pn_ospf_cost }}"                        # ospf cost. Default: '10000'.
+        pn_ospf_redistribute: "{{ pn_ospf_redistribute }}"        # Variable to configure ospf redistribute
+      register: ospf_out                                          # Variable to hold/register output of the above tasks.
+      until: ospf_out.failed != true                              # If the above code fails it will retry the code
+      retries: 3                                                  # This is the retries count
+      delay: 1
+
+
+
+# Creates full-mesh tunnels from every switch/cluster to every other.
+# It uses pn_ztp_tunnel.py module from library/ directory.
+# If the tasks fails then it will retry as specified by retries count.
+- name: ZTP tunnel configuration
+  hosts: leaf[0]
+  tags: tunnel
+  ignore_errors: no
+
+
+
+  tasks:
+    - name: ZTP Tunnel configuration
+      pn_ztp_tunnel:
+        pn_leaf_list: "{{ groups['leaf'] | default([])}}"      # List of leaf switches
+        pn_tunnel_mode: 'full-mesh'                            # Flag to indicate tunnel mode type Choices: full-mesh or manual.  Default: full-mesh.
+        pn_csv_data: "{{ lookup('file', '{{ csv_file }}') }}"       # Csv file containing L3 vrrp data.
+      register: tunnel_config                                   # Variable to hold/register output of the above tasks.
+      until: tunnel_config.failed != true                       # If the above code fails it will retry the code
+      retries: 3                                               # This is the retries count
+      delay: 3
