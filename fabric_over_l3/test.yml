@@ -1,0 +1,122 @@
+- name: Zero Touch Provisioning - Inband interface add
+  hosts: spine, leaf
+  tags: inband-setup
+  serial: 1
+
+  vars:
+  - csv_file: fab_over_l3.csv
+
+  tasks:
+    - name: L3 fabric vrouter inband interface config
+      pn_l3_inband_vlan_interface:
+        pn_current_switch: "{{ inventory_hostname }}"                   # Name of the switch on which this task is currently getting executed.
+        pn_spine_list: "{{ groups['spine'] | default([]) }}"            # List of all spine switches mentioned under [spine] grp in hosts file.
+        pn_leaf_list: "{{ groups['leaf'] }}"                            # List of all leaf switches mentioned under [leaf] grp in hosts file.
+        pn_inband_ipv4: "10.0.1.0/24"
+        pn_csv_data: "{{ lookup('file', '{{ csv_file }}') }}"  # Csv file containing L3 vrrp data.
+        pn_inband_vlan: '4000'
+
+
+- name: Zero Touch Provisioning - BGP config
+  hosts: spine, leaf
+  tags: bgp-config
+  serial: 1
+
+  vars:
+  - csv_file: fab_over_l3.csv
+
+
+  tasks:
+    - name: L3 fabric vrouter BGP config
+      pn_l3_bgp_config:
+        pn_current_switch: "{{ inventory_hostname }}"                   # Name of the switch on which this task is currently getting executed.
+        pn_spine_list: "{{ groups['spine'] | default([]) }}"            # List of all spine switches mentioned under [spine] grp in hosts file.
+        pn_leaf_list: "{{ groups['leaf'] }}"                            # List of all leaf switches mentioned under [leaf] grp in hosts file.
+        pn_bgp_ip: "101.1.1.0/31"
+        pn_csv_data: "{{ lookup('file', '{{ csv_file }}') }}"  # Csv file containing L3 vrrp data.
+
+
+
+- name: Zero Touch Provisioning - Initial setup
+  hosts: spine[0]
+  tags: fabric-setup
+  serial: 1
+
+  tasks:
+    - name: Disable STP, enable ports and create/join fabric
+      pn_l3_fabric_and_inband_network:
+        pn_current_switch: "{{ inventory_hostname }}"                   # Name of the switch on which this task is currently getting executed.
+        pn_spine_list: "{{ groups['spine'] | default([]) }}"            # List of all spine switches mentioned under [spine] grp in hosts file.
+        pn_leaf_list: "{{ groups['leaf'] }}"                            # List of all leaf switches mentioned under [leaf] grp in hosts file.
+        pn_inband_ipv4: "10.0.1.0/24"
+        pn_fabric_name: "my-fab-over-l3"
+
+
+- name: Zero Touch Provisioning - Initial setup
+  hosts: spine, leaf
+  tags: fab-join-inband
+  serial: 1
+
+  tasks:
+    - name: Disable STP, enable ports and create/join fabric
+      pn_l3_fabric_join:
+        pn_current_switch: "{{ inventory_hostname }}"                   # Name of the switch on which this task is currently getting executed.
+        pn_spine_list: "{{ groups['spine'] | default([]) }}"            # List of all spine switches mentioned under [spine] grp in hosts file.
+        pn_leaf_list: "{{ groups['leaf'] }}"                            # List of all leaf switches mentioned under [leaf] grp in hosts file.
+        pn_inband_ipv4: "10.0.1.0/24"
+        pn_inband_vlan: '4000'
+
+
+
+- name: Configure L3 VRRP
+  hosts: leaf
+  tags: l3-vrrp
+
+  vars:
+  - csv_file: vrrp.csv
+
+  tasks:
+    # This task is to configure VRRP for Layer 3 fabric.
+    # It takes required VRRP config data from csv file.
+    # It uses pn_l3_vrrp.py module from library/ directory.
+    - name: Configure L3 vrrp
+      pn_ztp_l3_vrrp:
+        pn_spine_list: "{{ groups['spine'] }}"  # List of all spine switches mentioned under [spine] grp in hosts file.
+        pn_leaf_list: "{{ groups['leaf'] }}"    # List of all leaf switches mentioned under [leaf] grp in hosts file.
+        pn_csv_data: "{{ lookup('file', '{{ csv_file }}') }}"  # Csv file containing L3 vrrp data.
+        pn_current_switch: "{{ inventory_hostname }}"  # Name of the switch on which this task is currently getting executed.
+        pn_pim_ssm: True
+        pn_jumbo_frames: True
+        pn_fabric_over_l2: False
+      register: vrrp_out                        # Variable to hold/register output of the above tasks.
+      until:  vrrp_out.failed != true           # If error pops up it will retry the code
+      retries: 3                                # This is the retries count
+      delay: 1
+
+
+
+# This task is to configure VXLAN full mesh.
+# It uses pn_ztp_vxlan.py module from library/ directory.
+# If the tasks fails then it will retry as specified by retries count.
+# Create full-mesh tunnels from every switch/cluster to every other
+# switch/cluster with vxlan loopback port 21 with overlay VLAN 200
+- name: ZTP VXLAN configuration
+  hosts: spine[0]
+  tags: vxlan
+
+  tasks:
+    - name: ZTP Vxlan configuration
+      pn_ztp_vxlan:
+        pn_spine_list: "{{ groups['spine'] | default([]) }}"   # List of spine switches
+        pn_leaf_list: "{{ groups['leaf'] | default([])}}"      # List of leaf switches
+        pn_tunnel_mode: 'full-mesh'                            # Flag to indicate tunnel mode type Choices: full-mesh or manual.  Default: full-mesh.
+        pn_tunnel_loopback_port: '21'                          # Port to configure loopback
+        pn_tunnel_vxlan_id: '2000'                             # Specify vxlan id for configuration
+        pn_tunnel_overlay_vlan: '200'                          # Specify overlay vlan
+      register: vxlan_config                                   # Variable to hold/register output of the above tasks.
+      until: vxlan_config.failed != true                       # If the above code fails it will retry the code
+      retries: 3                                               # This is the retries count
+      delay: 3
+    - pause:
+        seconds: 2                                             # Pause playbook execution for specified amount of time.
+
